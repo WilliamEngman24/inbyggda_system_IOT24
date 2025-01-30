@@ -11,7 +11,7 @@
 #define ANSI_RESET "\033[0m"
 #define WORLD_COUNT 1
 #define NEW_LINE "\n"
-#define COLOR_AMOUNT 7
+#define COLOR_AMOUNT 6
 
 #define PRINTF_COLOR(color, format_string, ...) \
     printf("%s" format_string "%s", color, ##__VA_ARGS__, ANSI_RESET)
@@ -50,7 +50,7 @@ void app_main(void)
 
     PRINTF_COLOR_READY("STOP ", " READY ", "GO" NEW_LINE);
 
-    char * colors[] = {ANSI_RED, ANSI_GREEN, ANSI_YELLOW, ANSI_BLUE, ANSI_MAGENTA, 
+    char * colors[COLOR_AMOUNT] = {ANSI_RED, ANSI_GREEN, ANSI_YELLOW, ANSI_BLUE, ANSI_MAGENTA, 
     ANSI_CYAN, ANSI_RESET};
 
     char* theWord = "pneumonoultramicroscopicsilicovolcanoconiosis";
@@ -61,6 +61,6 @@ void app_main(void)
     {
         char c[2] = {0};
         c[0] = theWord[i];
-        PRINTF_COLOR(colors[colorFunc(i, COLOR_AMOUNT - 1)], "%s", c);
+        PRINTF_COLOR(colors[colorFunc(i, COLOR_AMOUNT)], "%s", c);
     }
 }
