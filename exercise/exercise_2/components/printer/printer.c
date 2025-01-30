@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "helper_component.h"
+#include "printer.h"
 
 int func(void)
 {
