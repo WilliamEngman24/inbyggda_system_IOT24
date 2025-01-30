@@ -57,7 +57,7 @@ void app_main(void)
 
     int size = strlen(theWord);
 
-    for(int i = 0; i < size; i++) 
+    for(int i = 0; i < size-1; i++) 
     {
         char c[2] = {0};
         c[0] = theWord[i];
