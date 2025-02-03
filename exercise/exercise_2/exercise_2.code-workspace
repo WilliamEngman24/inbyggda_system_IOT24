@@ -7,5 +7,9 @@
 			"path": "../../Components"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"chrono": "cpp"
+		}
+	}
 }

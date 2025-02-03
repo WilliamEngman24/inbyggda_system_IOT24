@@ -5,6 +5,6 @@ namespace exercise_2
 {
     int func(void)
     {
-        return 1;
+        return CONFIG_PRINT_LEVEL;
     }
 }
