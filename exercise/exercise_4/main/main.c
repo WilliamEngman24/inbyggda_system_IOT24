@@ -83,9 +83,8 @@ void app_main(void)
 
 void handler(void* arg)
 {
-    bool button;
     gpio_isr_handler_remove(WATCHDOG_BUTTON);
-    bool* button_change = (bool*)arg;
+    bool* button = (bool*)arg;
     button = true;                                             //change here
     esp_task_wdt_reset();
 }
