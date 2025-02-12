@@ -19,34 +19,94 @@ void Button::init(int pin, bool isPulldown)
 
 void Button::update(gpio_num_t pin)
 {
+    typedef enum State 
+    {
+        BUTTON_ON,
+        BUTTON_OFF
+    };
+
     TickType_t elapsed_time;
 
     int level = gpio_get_level(pin);
 
     bool pressed = isPressed(level);
+
+    int current_state;
+
+    switch (pressed) 
+    {
+        case BUTTON_OFF:
+        
+        break;
+
+        case BUTTON_ON:
+        break;
+
+        default:
+        break;
+    }
+
+    if (current_state != this->button_state) 
+    {
+        this->button_state = current_state;
+    }
     
+    //-----------------------
 
     if(pressed) //if level is high = button pressed
     {
-        elapsed_time = xTaskGetTickCount() - this->last_pressed;
-
-        if(this-> latch == 0 && elapsed_time > pdMS_TO_TICKS(30)) //if latch is off
+        if (button_state == 0) //if the previous state of the button is low
         {
-            this->last_pressed = xTaskGetTickCount(); //notes the time at button press
-
-            this->latch = 1; //turn latch on
-            
-            this->function(); //pressed function
+            last_pressed = xTaskGetTickCount(); //notes the time at button press
+        }
+        else if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(30) && !this->latch) 
+        {
+            this->function(); //execute the function of button
+            this->latch = 1;
         }
     }
-    else if(!pressed)
+    else 
     {
-        elapsed_time = xTaskGetTickCount() - this->last_pressed;
-        
-        if (elapsed_time < pdMS_TO_TICKS(30)) 
+        this->latch = false;
+    }
+
+    this->button_state = pressed;
+
+    //-----------------------------
+
+    if (pressed != this->button_state) //change to latch
+    {
+        this->last_pressed = xTaskGetTickCount();
+    }
+
+    if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(30)) 
+    {
+        if (pressed != this->button_state) 
         {
-            this->latch = 0;
+            this->button_state = pressed;
+            if (this->button_state == 1) 
+            {
+                this->function(); //execute button function
+            }
         }
+    }
+
+    this->button_state = pressed; // change to latch
+
+    //-------------------
+
+    if (pressed != this->latch) 
+    {
+        this->last_pressed = xTaskGetTickCount();
+        this->latch = pressed;
+    }
+    if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(30)) 
+    {
+        if (this->button_state == 1 && pressed == 0) 
+        {
+            this->function();
+        }
+        this->button_state = pressed;
     }
 }
 

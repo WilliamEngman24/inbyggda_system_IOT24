@@ -9,10 +9,12 @@
 class Button 
 {
 private:
-    int latch = 0;
+    bool latch = false;
     bool isPullDown = false;
     void (*function)(void);
     TickType_t last_pressed;
+
+    int button_state = 0;
 
 public:
 
