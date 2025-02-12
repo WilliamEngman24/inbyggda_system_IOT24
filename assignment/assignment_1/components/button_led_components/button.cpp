@@ -19,29 +19,35 @@ void Button::init(int pin, bool isPulldown)
 
 void Button::update(gpio_num_t pin)
 {
-    TickType_t elapsed_time = xTaskGetTickCount();
+    TickType_t elapsed_time;
 
     int level = gpio_get_level(pin);
 
     bool pressed = isPressed(level);
-    TickType_t last_pressed = xTaskGetTickCount();
+    
 
-    if(pressed) //if button is pressed
+    if(pressed) //if level is high = button pressed
     {
-        elapsed_time = xTaskGetTickCount() - last_pressed;
+        elapsed_time = xTaskGetTickCount() - this->last_pressed;
 
-        if(this->latch == 0 && elapsed_time < pdMS_TO_TICKS(40)) //if the latch is off but pressed is on
+        if(this-> latch == 0 && elapsed_time > pdMS_TO_TICKS(30)) //if latch is off
         {
+            this->last_pressed = xTaskGetTickCount(); //notes the time at button press
+
             this->latch = 1; //turn latch on
             
             this->function(); //pressed function
         }
     }
-    else
+    else if(!pressed)
     {
-        this->latch = 0;
+        elapsed_time = xTaskGetTickCount() - this->last_pressed;
+        
+        if (elapsed_time < pdMS_TO_TICKS(30)) 
+        {
+            this->latch = 0;
+        }
     }
-
 }
 
 bool Button::isPressed(bool update)

@@ -3,12 +3,15 @@
 #ifndef POTENTIOMETER_H
 #define POTENTIOMETER_H
 
-void init(int pin);
+class Potentiometer 
+{
+    void init(int pin);
 
-void update();
+    void update();
 
-int getValue();
+    int getValue();
 
-void setOnThreshold(void(*onThreshhold)(int pin));
+    void setOnThreshold(void(*onThreshhold)(void));
+};
 
 #endif 

@@ -1,12 +1,18 @@
 #include "potentiometer.h"
 
-class Potentiometer 
+
+void Potentiometer::init(int pin)
 {
-    void init(int pin);
 
-    void update();
+}
 
-    int getValue();
+void Potentiometer::update()
+{}
 
-    void setOnThreshold(void(*onThreshhold)(int pin));
-};
+int Potentiometer::getValue()
+{
+    return 1;
+}
+
+void Potentiometer::setOnThreshold(void(*onThreshhold)(void))
+{}

@@ -32,7 +32,7 @@ extern "C"
         while(1) 
         {
             button_1->update(BUTTON);
-            vTaskDelay(pdMS_TO_TICKS(10));
+            //vTaskDelay(pdMS_TO_TICKS(10));
         }
 
     }
