@@ -12,7 +12,7 @@
 class Potentiometer 
 {
     private:
-    void (*function)(int pin, int value);
+    void (*function)(adc_channel_t adc, int value);
     adc_oneshot_unit_handle_t handle;
     int threshold;
     bool risingEdge;
@@ -24,7 +24,7 @@ class Potentiometer
 
     int getValue(adc_channel_t adc);
 
-    void setOnThreshold(int threshold, bool risingEdge, void(*onThreshhold)(int pin, int value));
+    void setOnThreshold(int threshold, bool risingEdge, void(*onThreshhold)(adc_channel_t adc, int value));
 };
 
 #endif 

@@ -21,9 +21,9 @@ void button_function()
     cout << "Button was pressed" << endl;
 }
 
-void potentiometer_function(int pin, int value) 
+void potentiometer_function(adc_channel_t adc, int value) 
 {
-    
+    cout << "Channel: " << adc << " | Value: " << value << endl;
 }
 
 extern "C"
@@ -37,7 +37,7 @@ extern "C"
         button_1->setOnPressed(button_function);
 
         potentiometer_1->init(POTENTIOMETER);
-        potentiometer_1->setOnThreshold(100, true, potentiometer_function);
+        potentiometer_1->setOnThreshold(500, false, potentiometer_function);
 
         while(1) 
         {

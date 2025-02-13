@@ -28,7 +28,20 @@ void Potentiometer::update(adc_channel_t adc)
 {
     int value = getValue(adc);
 
-    cout << value << "\n" << endl;
+    if (this->risingEdge) 
+    {
+        if (value < 3025 - this->threshold) 
+        {
+            this->function(adc, value);
+        }
+    }
+    else 
+    {
+        if(value > this->threshold) 
+        {
+            this->function(adc, value);
+        }
+    }
     /*
     if(this->risingEdge) 
     {
@@ -47,7 +60,7 @@ int Potentiometer::getValue(adc_channel_t adc)
     return value;
 }
 
-void Potentiometer::setOnThreshold(int threshold, bool risingEdge, void(*onThreshold)(int pin, int value))
+void Potentiometer::setOnThreshold(int threshold, bool risingEdge, void(*onThreshold)(adc_channel_t adc, int value))
 {
     this->threshold = threshold;
     this->risingEdge = risingEdge;
