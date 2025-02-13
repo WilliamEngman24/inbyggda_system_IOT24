@@ -30,24 +30,34 @@ void Potentiometer::update(adc_channel_t adc)
 
     if (this->risingEdge) 
     {
-        if (value < 3025 - this->threshold) 
+        if (value > this->threshold) 
         {
-            this->function(adc, value);
+            if (!this->isOverThreshold) 
+            {
+                this->function(adc, value);
+                this->isOverThreshold = true;
+            }
+        }
+        else
+        {
+            this->isOverThreshold = false;
         }
     }
     else 
     {
-        if(value > this->threshold) 
+        if(value < this->threshold) 
         {
-            this->function(adc, value);
+            if (!this->isOverThreshold) 
+            {
+                this->function(adc, value);
+                this->isOverThreshold = true;
+            }
+        }
+        else 
+        {
+            this->isOverThreshold = false;
         }
     }
-    /*
-    if(this->risingEdge) 
-    {
-        if (value < )
-    } 
-    */
     
 }
 

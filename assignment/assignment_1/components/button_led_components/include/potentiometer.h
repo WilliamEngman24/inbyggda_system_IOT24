@@ -17,6 +17,8 @@ class Potentiometer
     int threshold;
     bool risingEdge;
 
+    bool isOverThreshold;
+
     public:
     void init(adc_channel_t adc);
 

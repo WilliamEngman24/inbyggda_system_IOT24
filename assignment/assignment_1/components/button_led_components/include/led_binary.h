@@ -3,12 +3,30 @@
 #ifndef LED_BINARY_H
 #define LED_BINARY_H
 
-void init(int pin);
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
+#include "driver/ledc.h"
 
-void update();
+class LedBinary
+{
+    private:
+    TickType_t on_timer;
+    TickType_t off_timer;
 
-void settLed();
+    int milli_on;
+    int milli_off;
 
-void blink();
+    bool on;
+
+    public:
+    void init(int pin);
+
+    void update(int pin);
+
+    void settLed(int pin, bool state);
+
+    void blink(int on, int off);
+};
 
 #endif 
