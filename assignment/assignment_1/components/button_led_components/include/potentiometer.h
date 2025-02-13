@@ -3,15 +3,28 @@
 #ifndef POTENTIOMETER_H
 #define POTENTIOMETER_H
 
+#include "driver/gpio.h"
+#include "hal/adc_types.h"
+#include "esp_adc/adc_oneshot.h"
+#include "freertos/FreeRTOS.h"
+#include "esp_log.h"
+
 class Potentiometer 
 {
-    void init(int pin);
+    private:
+    void (*function)(int pin, int value);
+    adc_oneshot_unit_handle_t handle;
+    int threshold;
+    bool risingEdge;
 
-    void update();
+    public:
+    void init(adc_channel_t adc);
 
-    int getValue();
+    void update(adc_channel_t adc);
 
-    void setOnThreshold(void(*onThreshhold)(void));
+    int getValue(adc_channel_t adc);
+
+    void setOnThreshold(int threshold, bool risingEdge, void(*onThreshhold)(int pin, int value));
 };
 
 #endif 

@@ -19,17 +19,39 @@ void Button::init(int pin, bool isPulldown)
 
 void Button::update(gpio_num_t pin)
 {
-    typedef enum State 
-    {
-        BUTTON_ON,
-        BUTTON_OFF
-    };
-
-    TickType_t elapsed_time;
 
     int level = gpio_get_level(pin);
 
     bool pressed = isPressed(level);
+
+    if(pressed) //if level is high = button pressed
+    {
+        if (button_state == 0) //if the previous state of the button is low
+        {
+            last_pressed = xTaskGetTickCount(); //notes the time at button press
+        }
+        else if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(10) && !this->latch) 
+        {
+            this->function(); //execute the function of button
+            this->latch = 1;
+        }
+    }
+    else 
+    {
+        this->latch = false;
+    }
+
+    this->button_state = pressed;
+
+    /*
+
+    typedef enum State 
+    {
+        BUTTON_OFF,
+        DEBOUNCE_OFF,
+        BUTTON_ON,
+        DEBOUNCE_ON
+    };
 
     int current_state;
 
@@ -51,28 +73,9 @@ void Button::update(gpio_num_t pin)
         this->button_state = current_state;
     }
     
-    //-----------------------
+    */
 
-    if(pressed) //if level is high = button pressed
-    {
-        if (button_state == 0) //if the previous state of the button is low
-        {
-            last_pressed = xTaskGetTickCount(); //notes the time at button press
-        }
-        else if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(30) && !this->latch) 
-        {
-            this->function(); //execute the function of button
-            this->latch = 1;
-        }
-    }
-    else 
-    {
-        this->latch = false;
-    }
-
-    this->button_state = pressed;
-
-    //-----------------------------
+    /*
 
     if (pressed != this->button_state) //change to latch
     {
@@ -93,7 +96,8 @@ void Button::update(gpio_num_t pin)
 
     this->button_state = pressed; // change to latch
 
-    //-------------------
+    */
+    /*
 
     if (pressed != this->latch) 
     {
@@ -108,6 +112,7 @@ void Button::update(gpio_num_t pin)
         }
         this->button_state = pressed;
     }
+    */
 }
 
 bool Button::isPressed(bool update)
