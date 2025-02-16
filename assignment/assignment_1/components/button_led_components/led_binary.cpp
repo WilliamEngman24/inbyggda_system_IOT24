@@ -2,32 +2,23 @@
 
 void LedBinary::init(int pin) 
 {
-    //inte pwm, slås av eller då
-    ledc_timer_config_t led_timer =
+    gpio_config_t binary_led = 
     {
-        .speed_mode = LEDC_LOW_SPEED_MODE,
-        .duty_resolution = LEDC_TIMER_12_BIT,
-        .timer_num = LEDC_TIMER_0,
-        .freq_hz = 4000,
-        .clk_cfg = LEDC_AUTO_CLK
+        .pin_bit_mask = (1ULL << pin),
+        .mode = GPIO_MODE_OUTPUT,                  //button value is read, input
+        .pull_up_en = (gpio_pullup_t)0,           //pullup is enabled
+        .pull_down_en = (gpio_pulldown_t)0,
+        .intr_type = GPIO_INTR_DISABLE,           //interupt is disabled
     };
-    ledc_timer_config(&led_timer);
-    
-    ledc_channel_config_t led_channel = 
-    {
-        .gpio_num = pin,
-        .speed_mode = LEDC_LOW_SPEED_MODE,
-        .channel = LEDC_CHANNEL_0,
-        .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = LEDC_TIMER_0,
-        .duty = 0,
-        .hpoint = 0
-    };
-    ledc_channel_config(&led_channel);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(gpio_config(&binary_led));
 }
 
 void LedBinary::update(int pin)
 {
+    if(this->on && this->on_timer == 0) //will only happen the first time when the off function hasn't been triggered once
+    {
+        this->on_timer = xTaskGetTickCount();
+    }
     //blink in here
     if (this->on) 
     {
@@ -39,7 +30,7 @@ void LedBinary::update(int pin)
     }
     else 
     {
-        if (xTaskGetTickCount() - this->off_timer > this->milli_off) 
+        if (this->off_timer != 0 && xTaskGetTickCount() - this->off_timer > this->milli_off) 
         {
             this->on = true;
             this->on_timer = xTaskGetTickCount();
@@ -51,16 +42,14 @@ void LedBinary::update(int pin)
 
 void LedBinary::settLed(int pin, bool state) // on  and off
 {
-    int duty = 0;
     if (state) 
     {
-        duty = 100;
+        gpio_set_level((gpio_num_t)pin, 1); //sends a high signal to led, turns on
     }
     else 
     {
-        duty = 0;
+        gpio_set_level((gpio_num_t)pin, 0); // sends low signal to led, turns off
     }
-    ledc_set_duty_and_update(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty, 0);
 }
     
 void LedBinary::blink(int on, int off) 

@@ -3,14 +3,27 @@
 #ifndef LED_ANALOG_H
 #define LED_ANALOG_H
 
-void init(int pin);
+#include <cmath>
 
-void update();
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
+#include "driver/ledc.h"
 
-void settLed();
+class LedAnalog
+{
+    private:
+    double sin_period;
+    int normal_duty;
 
-void sin();
+    public:
+    void init(int pin);
 
+    void update();
 
+    double settLed(int value);
+
+    void settSin(double period);
+};
 
 #endif 
