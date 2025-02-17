@@ -6,16 +6,18 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
+
+
 //#include "driver/ledc.h"
 
 class LedBinary
 {
     private:
-    TickType_t on_timer;
-    TickType_t off_timer;
+    double on_timer;
+    double off_timer;
 
-    int milli_on;
-    int milli_off;
+    double milli_on;
+    double milli_off;
 
     bool on;
 
@@ -26,7 +28,7 @@ class LedBinary
 
     void settLed(int pin, bool state);
 
-    void blink(int on, int off);
+    void blink(double on, double off);
 };
 
 #endif 

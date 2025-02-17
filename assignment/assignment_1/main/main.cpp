@@ -14,7 +14,7 @@
 #define BUTTON GPIO_NUM_7
 #define POTENTIOMETER ADC_CHANNEL_6
 #define LED_BINARY GPIO_NUM_2
-#define LED_ANALOG GPIO_NUM_3
+#define LED_ANALOG ADC_CHANNEL_3
 
 using namespace std;
 
@@ -44,10 +44,10 @@ extern "C"
         potentiometer_1->setOnThreshold(500, true, potentiometer_function);
 
         led_binary_1->init(LED_BINARY);
-        led_binary_1->blink(1, 2);
+        led_binary_1->blink(0.25, 2);
 
         led_analog_1->init(LED_ANALOG);
-        led_analog_1->settSin(0.15);
+        led_analog_1->settSin(1);
 
         while(1) 
         {

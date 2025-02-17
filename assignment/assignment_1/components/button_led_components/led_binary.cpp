@@ -15,25 +15,26 @@ void LedBinary::init(int pin)
 
 void LedBinary::update(int pin)
 {
-    if(this->on && this->on_timer == 0) //will only happen the first time when the off function hasn't been triggered once
+    if(this->on == false && (double)this->off_timer == 0) //will only happen the first time when the off function hasn't been triggered once
     {
-        this->on_timer = xTaskGetTickCount();
+        this->off_timer = (double)xTaskGetTickCount() / 100;
     }
-    //blink in here
+
     if (this->on) 
     {
-        if (xTaskGetTickCount() - this->on_timer > this->milli_on) 
+        if (((double)xTaskGetTickCount()/ 100) - (double)this->on_timer >= this->milli_on) 
         {
             this->on = false;
-            this->off_timer = xTaskGetTickCount();
+            this->off_timer = (double)xTaskGetTickCount()/ 100;
         }
     }
     else 
     {
-        if (this->off_timer != 0 && xTaskGetTickCount() - this->off_timer > this->milli_off) 
+        //printf("%d %d %d \n ", (int)xTaskGetTickCount()/ 100, (int)this->off_timer, (int)this->milli_off );
+        if (((double)xTaskGetTickCount()/ 100) - (double)this->off_timer >= this->milli_off) 
         {
             this->on = true;
-            this->on_timer = xTaskGetTickCount();
+            this->on_timer = (double)xTaskGetTickCount() / 100;
         }
     }
 
@@ -52,7 +53,7 @@ void LedBinary::settLed(int pin, bool state) // on  and off
     }
 }
     
-void LedBinary::blink(int on, int off) 
+void LedBinary::blink(double on, double off) 
 {
     this->milli_on = on;
     this->milli_off = off;

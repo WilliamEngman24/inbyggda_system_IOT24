@@ -2,7 +2,9 @@
     "C_Cpp.intelliSenseEngine": "default",
     "idf.espIdfPathWin": "C:\\Users\\WillA\\esp\\v5.4\\esp-idf",
     "idf.openOcdConfigs": [
-        "board/esp32-wrover-kit-3.3v.cfg"
+        "board/esp32c6-ftdi.cfg"
     ],
-    "idf.toolsPathWin": "C:\\Users\\WillA\\.espressif"
+    "idf.toolsPathWin": "C:\\Users\\WillA\\.espressif",
+    "idf.flashType": "UART",
+    "idf.portWin": "COM5"
 }
