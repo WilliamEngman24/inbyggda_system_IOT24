@@ -1,6 +1,7 @@
 #include <iostream>
 #include "potentiometer.h"
 
+#define FILTER 10
 using namespace std;
 
 void Potentiometer::init(adc_channel_t adc)
@@ -26,37 +27,51 @@ void Potentiometer::init(adc_channel_t adc)
 
 void Potentiometer::update(adc_channel_t adc)
 {
-    int value = getValue(adc);
+    int value = 0;
+    int sum = 0;
+    this->values.push_back(getValue(adc));
 
-    if (this->risingEdge) 
-    {
-        if (value > this->threshold) 
+    if(this->values.size() == FILTER) 
+    {   
+        for (int e : this->values) 
         {
-            if (!this->isOverThreshold) 
+            sum += e;
+        }
+
+        value = (sum / FILTER);
+
+        if (this->risingEdge) 
+        {
+            if (value > this->threshold) 
             {
-                this->function(adc, value);
-                this->isOverThreshold = true;
+                if (!this->isOverThreshold) 
+                {
+                    this->function(adc, value);
+                    this->isOverThreshold = true;
+                }
             }
-        }
-        else
-        {
-            this->isOverThreshold = false;
-        }
-    }
-    else 
-    {
-        if(value < this->threshold) 
-        {
-            if (!this->isOverThreshold) 
+            else
             {
-                this->function(adc, value);
-                this->isOverThreshold = true;
+                this->isOverThreshold = false;
             }
         }
         else 
         {
-            this->isOverThreshold = false;
+            if(value < this->threshold) 
+            {
+                if (!this->isOverThreshold) 
+                {
+                    this->function(adc, value);
+                    this->isOverThreshold = true;
+                }
+            }
+            else 
+            {
+                this->isOverThreshold = false;
+            }
         }
+
+        this->values.clear();
     }
     
 }

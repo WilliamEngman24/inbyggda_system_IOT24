@@ -3,6 +3,8 @@
 #ifndef POTENTIOMETER_H
 #define POTENTIOMETER_H
 
+#include <list>
+
 #include "driver/gpio.h"
 #include "hal/adc_types.h"
 #include "esp_adc/adc_oneshot.h"
@@ -16,8 +18,10 @@ class Potentiometer
     adc_oneshot_unit_handle_t handle;
     int threshold;
     bool risingEdge;
-
     bool isOverThreshold;
+
+    std::list<int> values;
+    int counter;
 
     public:
     void init(adc_channel_t adc);

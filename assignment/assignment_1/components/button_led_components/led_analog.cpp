@@ -39,7 +39,6 @@ void LedAnalog::update()
 
 double LedAnalog::settLed(int time)
 {
-    //call on sin func with
     int period = this->sin_period * 3.14 * 2;
 
     return this->amp_or_vertical_shift * sin(period * time) + this->amp_or_vertical_shift;

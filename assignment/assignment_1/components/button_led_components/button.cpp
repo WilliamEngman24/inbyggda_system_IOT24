@@ -42,77 +42,6 @@ void Button::update(gpio_num_t pin)
     }
 
     this->button_state = pressed;
-
-    /*
-
-    typedef enum State 
-    {
-        BUTTON_OFF,
-        DEBOUNCE_OFF,
-        BUTTON_ON,
-        DEBOUNCE_ON
-    };
-
-    int current_state;
-
-    switch (pressed) 
-    {
-        case BUTTON_OFF:
-        
-        break;
-
-        case BUTTON_ON:
-        break;
-
-        default:
-        break;
-    }
-
-    if (current_state != this->button_state) 
-    {
-        this->button_state = current_state;
-    }
-    
-    */
-
-    /*
-
-    if (pressed != this->button_state) //change to latch
-    {
-        this->last_pressed = xTaskGetTickCount();
-    }
-
-    if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(30)) 
-    {
-        if (pressed != this->button_state) 
-        {
-            this->button_state = pressed;
-            if (this->button_state == 1) 
-            {
-                this->function(); //execute button function
-            }
-        }
-    }
-
-    this->button_state = pressed; // change to latch
-
-    */
-    /*
-
-    if (pressed != this->latch) 
-    {
-        this->last_pressed = xTaskGetTickCount();
-        this->latch = pressed;
-    }
-    if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(30)) 
-    {
-        if (this->button_state == 1 && pressed == 0) 
-        {
-            this->function();
-        }
-        this->button_state = pressed;
-    }
-    */
 }
 
 bool Button::isPressed(bool update)
@@ -120,7 +49,7 @@ bool Button::isPressed(bool update)
     bool pressed;
     if (this->isPullDown == true && update == 1) //pulldown when high
     {
-            pressed = 1;
+        pressed = 1;
     }
     else if (this->isPullDown == true && update == 0) //pulldown when low
     {
