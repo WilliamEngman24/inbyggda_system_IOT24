@@ -30,7 +30,7 @@ void LedAnalog::init(int pin)
 
 void LedAnalog::update()
 {
-    int current_time = (int)xTaskGetTickCount() / 100;
+    double current_time = (double)xTaskGetTickCount() / (double)100.00;
     double current_duty = settLed(current_time);
 
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, current_duty);
