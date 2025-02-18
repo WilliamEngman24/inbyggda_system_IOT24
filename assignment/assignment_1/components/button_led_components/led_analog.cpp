@@ -24,25 +24,25 @@ void LedAnalog::init(int pin)
         .hpoint = 0
     };
     ledc_channel_config(&led_channel);
-     
-    this->normal_duty = 0b111111111111;
+
+    this->amp_or_vertical_shift = 0b111111111111;
 }
 
 void LedAnalog::update()
 {
     int current_time = (int)xTaskGetTickCount() / 100;
-    int current_duty = settLed(current_time);
+    double current_duty = settLed(current_time);
 
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, current_duty);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
-double LedAnalog::settLed(int value)
+double LedAnalog::settLed(int time)
 {
     //call on sin func with
-    int angle = value * 3.14 * 2;
+    int period = this->sin_period * 3.14 * 2;
 
-    return this->normal_duty* sin(angle * ) + this->sin_period;
+    return this->amp_or_vertical_shift * sin(period * time) + this->amp_or_vertical_shift;
 }
 
 void LedAnalog::settSin(double period)

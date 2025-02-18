@@ -14,7 +14,7 @@ class LedAnalog
 {
     private:
     double sin_period;
-    int normal_duty;
+    double amp_or_vertical_shift;
 
     public:
     void init(int pin);

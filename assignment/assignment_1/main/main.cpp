@@ -47,7 +47,7 @@ extern "C"
         led_binary_1->blink(0.25, 2);
 
         led_analog_1->init(LED_ANALOG);
-        led_analog_1->settSin(1);
+        led_analog_1->settSin(1000);
 
         while(1) 
         {
