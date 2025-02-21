@@ -23,7 +23,7 @@ private:
 
 public:
 
-    int getPressed();
+    bool getPressed();
 
     void init(int pin, bool isPullDown);
 
