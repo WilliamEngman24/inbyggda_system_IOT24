@@ -29,7 +29,7 @@ public:
 
     void update();
 
-    bool isPressed(bool update);
+    bool isPressed();
 
     void setOnPressed(void(*onPresseed)(void));
 

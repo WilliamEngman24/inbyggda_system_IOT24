@@ -32,7 +32,7 @@ void LedBinary::settLed(bool level) // on and off with mode to determinate state
 {
     this->mode = 0;
     this->on = level;
-    gpio_set_level((gpio_num_t)this->pin, level); //sends a signal equal to which state
+    gpio_set_level((gpio_num_t)this->pin, level); //sends a signal equal to state
 }
     
 void LedBinary::blink(double on, double off) //takes milliseconds
@@ -43,26 +43,26 @@ void LedBinary::blink(double on, double off) //takes milliseconds
 
     if(this->switch_to == false && (double)this->off_timer == 0) //will only happen the first time when the off function hasn't been triggered once
     {
-        this->off_timer = xTaskGetTickCount(); // start off timer
+        this->off_timer = (double)xTaskGetTickCount() /100; // start off timer
     }
 
     if (this->switch_to) 
     {
         //std::cout << xTaskGetTickCount() << " " << this->on_timer << " " << this->milli_on << std::endl;
-        if (xTaskGetTickCount() - this->on_timer >= this->milli_on) 
+        if (((double)xTaskGetTickCount() /100) - (double)this->on_timer >= this->milli_on / 1000) 
         {
             this->switch_to = false;
-            this->off_timer = xTaskGetTickCount();
+            this->off_timer = (double)xTaskGetTickCount() /100; //starts off timer
         }
     }
     else 
     {
-        if (xTaskGetTickCount() - (double)this->off_timer >= this->milli_off) 
+        if (((double)xTaskGetTickCount() /100) - (double)this->off_timer >= this->milli_off / 1000) 
         {
             this->switch_to = true;
-            this->on_timer = xTaskGetTickCount();
+            this->on_timer = (double)xTaskGetTickCount() /100; //starts on timer
         }
     }
-    //std::cout << (double)xTaskGetTickCount()/ 100 << " " << (double)this->on_timer << " " <<(double)this->off_timer << std::endl;
-    gpio_set_level((gpio_num_t)this->pin, this->switch_to); //sends a high signal to led, turns on
+    //std::cout << ((double)xTaskGetTickCount() /100) - (double)this->off_timer << " " << (double)this->milli_on/1000 << " " <<(double)this->milli_off/1000 << std::endl;
+    gpio_set_level((gpio_num_t)this->pin, this->switch_to); //sends a signal to led, turns on or off
 }

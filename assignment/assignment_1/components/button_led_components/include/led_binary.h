@@ -20,12 +20,10 @@ class LedBinary
     double milli_off;
 
     bool switch_to;
-
+    bool on;
     bool mode;
 
     int pin;
-
-    bool on;
 
     public:
     void init(int pin);

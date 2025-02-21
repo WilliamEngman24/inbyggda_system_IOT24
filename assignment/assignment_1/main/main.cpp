@@ -44,12 +44,14 @@ extern "C"
         potentiometer_1->setOnThreshold(500, true, potentiometer_function);
 
         led_binary_1->init(LED_BINARY);
-        led_binary_1->blink(100, 100);
+        
+        led_binary_1->blink(1000, 1000);
         //led_binary_1->settLed(false);
 
         led_analog_1->init(LED_ANALOG);
+        
         led_analog_1->settSin(3000);
-        //led_analog_1->settLed(200);
+        //led_analog_1->settLed(4000);
 
         while(1) 
         {

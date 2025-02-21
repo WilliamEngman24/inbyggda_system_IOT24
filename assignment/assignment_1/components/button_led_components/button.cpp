@@ -19,7 +19,7 @@ void Button::init(int pin, bool isPulldown)
     {
         .pin_bit_mask = (1ULL << pin),
         .mode = GPIO_MODE_INPUT,                  //button value is read, input
-        .pull_up_en = (gpio_pullup_t)1,           //make isPullDown int, do instead 1 - isPullDown        
+        .pull_up_en = (gpio_pullup_t)(1 - isPullDown),           //make isPullDown int, do instead 1 - isPullDown        
         .pull_down_en = (gpio_pulldown_t)isPullDown,
         .intr_type = GPIO_INTR_DISABLE,           //interupt is disabled
     };
@@ -30,10 +30,10 @@ void Button::init(int pin, bool isPulldown)
 
 void Button::update()
 {
-    int level = gpio_get_level((gpio_num_t)this->pin);
+    bool pressed = isPressed();
 
-    bool pressed = isPressed(level);
-
+    //following is debounce and latch
+    
     if(this->getPressed()) // if level is high = button pressed " this->button_state "
     {
         if (this->getPressed() == 0) //if the previous state of the button is low " this->button_state "
@@ -57,22 +57,24 @@ void Button::update()
     this->settPressed(pressed); //always sett state to level value
 }
 
-bool Button::isPressed(bool level)
+bool Button::isPressed()
 {
+    int level = gpio_get_level((gpio_num_t)this->pin);
+
     bool pressed;
-    if (this->isPullDown == true && level == 1) //pulldown when high
+    if (this->isPullDown == true && level == 1) //pulldown true when state is high
     {
         pressed = 1;
     }
-    else if (this->isPullDown == true && level == 0) //pulldown when low
+    else if (this->isPullDown == true && level == 0) //pulldown true when state is low
     {
         pressed = 0;
     }
-    else if (level == false)
+    else if (level == false) //pullup is true
     {
         pressed = 1;
     }
-    else 
+    else //pullup is false
     {
         pressed = 0;
     }
