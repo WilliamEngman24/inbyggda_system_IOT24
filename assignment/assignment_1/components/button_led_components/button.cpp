@@ -10,6 +10,7 @@ void Button::settPressed(int level)
 
 int Button::getPressed()
 {
+    if (this->button_state == 0 || this->button_state == )
     return this->button_state;
 }
 
@@ -30,31 +31,65 @@ void Button::init(int pin, bool isPulldown)
 
 void Button::update()
 {
-    bool pressed = isPressed();
+   bool pressed = isPressed();
 
-    //following is debounce and latch
-    
-    if(this->getPressed()) // if level is high = button pressed " this->button_state "
+    enum Case
     {
-        if (this->getPressed() == 0) //if the previous state of the button is low " this->button_state "
+        BTN_OFF,
+        DE_ON,
+        BTN_ON,
+        DE_OFF
+    };
+
+    switch(this->button_state)
+    {
+        case BTN_OFF:
+        if (pressed != 0) //if button has been pressed
+        //printf("is in button off\n");
         {
-            last_pressed = xTaskGetTickCount(); //notes the time at button press
-        }
-        else if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(10) && !this->latch) // if enough time has passed and latch is off
-        {
+            this->last_pressed = xTaskGetTickCount();
+            this->latch = false;
+            this->settPressed(DE_ON);
+
             if (this->function != NULL) 
             {
                 this->function();   //execute the function of button
-                this->latch = true; //turn on latch
             }
         }
-    }
-    else 
-    {
-        this->latch = false;
-    }
+        break;
 
-    this->settPressed(pressed); //always sett state to level value
+        case DE_ON: // skipp till
+        //printf("is in debounce on\n");
+        if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(10)) //when when bounce on is done
+        {
+            this->settPressed(BTN_ON); //move on to button is on
+        }
+        break;
+
+        case BTN_ON: //preform the task
+        //printf("is in button on\n");
+        if (pressed == 1 && !this->latch) //if pressed is high and latch is off
+        {
+            this->latch = true;
+            this->last_pressed = xTaskGetTickCount(); //start debounce off timer
+            //printf("has pressed the button\n");
+        }
+        else if (pressed == 0) //when the button has been let go
+        {
+            this->settPressed(DE_OFF);
+            //printf("has let go of button\n");
+        }
+        break;
+
+        case DE_OFF:
+        //printf("is in deboune off\n");
+        if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(10)) //when debounce off timer is done
+        {
+            this->settPressed(BTN_OFF); //move on to button off state
+        }
+        break;
+
+    }
 }
 
 bool Button::isPressed()
