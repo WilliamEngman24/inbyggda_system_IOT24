@@ -23,26 +23,21 @@ void Potentiometer::init(adc_channel_t adc)
     ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, adc, &config));
 
     this->handle = adc1_handle;
+    this->adc = adc;
 }
 
-void Potentiometer::update(adc_channel_t adc)
+void Potentiometer::update()
 {
-    int value = 0;
-    int sum = 0;
-    this->values.push_back(getValue(adc));
+    int value = getValue();
 
-    if(this->values.size() == FILTER) 
+    if(value != -1) //if enough values have been collected
     {   
-        for (int e : this->values) 
-        {
-            sum += e;
-        }
 
-        value = (sum / FILTER);
+        //cout << value << endl;
 
-        if (this->risingEdge) 
+        if (this->risingEdge) //if the function is supposed to react to when value goes OVER the threshold
         {
-            if (value > this->threshold) 
+            if (value > this->threshold) //when does go over
             {
                 if (!this->isOverThreshold) 
                 {
@@ -50,7 +45,7 @@ void Potentiometer::update(adc_channel_t adc)
                     this->isOverThreshold = true;
                 }
             }
-            else
+            else 
             {
                 this->isOverThreshold = false;
             }
@@ -70,19 +65,30 @@ void Potentiometer::update(adc_channel_t adc)
                 this->isOverThreshold = false;
             }
         }
-
-        this->values.clear();
     }
     
 }
 
-int Potentiometer::getValue(adc_channel_t adc)
+int Potentiometer::getValue()
 {
+    int sum = 0;
     int value;
+    ESP_ERROR_CHECK(adc_oneshot_read(this->handle, this->adc, &value));
 
-    ESP_ERROR_CHECK(adc_oneshot_read(this->handle, adc, &value));
+    this->values.push_back(value);
+    if ( this->values.size() == FILTER) 
+    {
+        for (int e : this->values) 
+        {
+            sum += e;
+        }
+        value = (sum / this->values.size()); //procure median
 
-    return value;
+        this->values.clear();
+
+        return value;
+    }
+    return -1;
 }
 
 void Potentiometer::setOnThreshold(int threshold, bool risingEdge, void(*onThreshold)(adc_channel_t adc, int value))

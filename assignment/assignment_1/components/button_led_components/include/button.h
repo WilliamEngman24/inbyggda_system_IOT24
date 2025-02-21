@@ -9,18 +9,25 @@
 class Button 
 {
 private:
+    int pin;
     bool latch = false;
     bool isPullDown = false;
-    void (*function)(void);
+    void (*function)(void) = NULL;
     TickType_t last_pressed;
+
+    int counter = 1;
 
     int button_state = 0;
 
+    void settPressed(int level);
+
 public:
+
+    int getPressed();
 
     void init(int pin, bool isPullDown);
 
-    void update(gpio_num_t pin);
+    void update();
 
     bool isPressed(bool update);
 

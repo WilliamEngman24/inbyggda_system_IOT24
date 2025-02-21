@@ -19,14 +19,18 @@ class LedBinary
     double milli_on;
     double milli_off;
 
+    bool switch_to;
+
+    int pin;
+
     bool on;
 
     public:
     void init(int pin);
 
-    void update(int pin);
+    void update();
 
-    void settLed(int pin, bool state);
+    void settLed(bool state);
 
     void blink(double on, double off);
 };

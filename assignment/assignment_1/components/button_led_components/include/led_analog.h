@@ -13,15 +13,17 @@
 class LedAnalog
 {
     private:
-    double sin_period;
     double amp_or_vertical_shift;
+    double period;
+
+    double current_duty;
 
     public:
     void init(int pin);
 
     void update();
 
-    double settLed(int value);
+    void settLed(double time);
 
     void settSin(double period);
 };

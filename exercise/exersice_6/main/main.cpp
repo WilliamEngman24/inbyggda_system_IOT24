@@ -6,24 +6,59 @@
 //#include "freertos/task.h"
 //#include "driver/gpio.h"
 
+//implementera "assignment_1"
+
 using namespace std;
+
+double current_time = 0;
+
+void deep_sleep() 
+{
+    if ((xTaskGetTickCount() / 100) - current_time >= 1)
+    current_time = (xTaskGetTickCount() / 100);
+
+    cout << current_time << endl;
+
+    if (current_time == 10) 
+    {
+        esp_deep_sleep(3000000);
+    }
+
+}
+bool light_sleep_mode = false;
+
+void light_sleep() //assign to button function
+{
+    //activete light sleep
+    if (light_sleep_mode == false) // turn on light sleep
+    {
+        light_sleep_mode = true;
+        esp_light_sleep_start();
+    }
+    else //turn off light sleep
+    {
+        light_sleep_mode = false;
+        //wakeup
+    }
+}
 
 extern "C" 
 {
     void app_main(void)
     {
+        //create button
+        //create led_binary
+
         while (1)
         {
-            vTaskDelay(pdMS_TO_TICKS(1000));
+            deep_sleep();
 
-            double current_time = (xTaskGetTickCount() / 100);
-            
-            cout << current_time << endl;
+            //update button
+            //update led
 
-            if (current_time == 10) 
-            {
-                esp_deep_sleep(3000000);
-            }
+            //if()
+
+            vTaskDelay(10);
         }
     }
 }

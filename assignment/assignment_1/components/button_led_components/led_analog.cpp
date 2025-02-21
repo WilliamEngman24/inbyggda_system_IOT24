@@ -1,5 +1,7 @@
 #include "led_analog.h"
 
+#define RES 0b111111111111
+
 void LedAnalog::init(int pin) 
 {
     ledc_timer_config_t led_timer =
@@ -25,26 +27,29 @@ void LedAnalog::init(int pin)
     };
     ledc_channel_config(&led_channel);
 
-    this->amp_or_vertical_shift = 0b111111111111;
+    this->amp_or_vertical_shift = RES;
 }
 
 void LedAnalog::update()
 {
-    double current_time = (double)xTaskGetTickCount() / (double)100.00;
-    double current_duty = settLed(current_time);
+    double current_time = (double)xTaskGetTickCount() / (double)100.00; //takes current time and turns into seconds
 
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, current_duty);
+    settLed(current_time); //sends time to the setting of the led
+}
+
+void LedAnalog::settLed(double time)
+{
+    this->current_duty = this->amp_or_vertical_shift * sin(this->period * time) + this->amp_or_vertical_shift; // A * sin(priod * time) + vertical shift
+
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, this->current_duty); //setts the duty to mimic sine curve at whatever x value
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
-double LedAnalog::settLed(int time)
+void LedAnalog::settSin(double period) // takes milliseconds
 {
-    int period = this->sin_period * 3.14 * 2;
-
-    return this->amp_or_vertical_shift * sin(period * time) + this->amp_or_vertical_shift;
-}
-
-void LedAnalog::settSin(double period)
-{
-    this->sin_period = period;
+    if (period == 0) 
+    {
+        period = 1000;
+    }
+    this->period = (1000 / period) * M_PI * 2;
 }

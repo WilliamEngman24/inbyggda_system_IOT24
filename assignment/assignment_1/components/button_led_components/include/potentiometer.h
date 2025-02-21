@@ -20,15 +20,19 @@ class Potentiometer
     bool risingEdge;
     bool isOverThreshold;
 
+    int value;
+
+    adc_channel_t adc;
+
     std::list<int> values;
     int counter;
 
     public:
     void init(adc_channel_t adc);
 
-    void update(adc_channel_t adc);
+    void update();
 
-    int getValue(adc_channel_t adc);
+    int getValue();
 
     void setOnThreshold(int threshold, bool risingEdge, void(*onThreshhold)(adc_channel_t adc, int value));
 };
