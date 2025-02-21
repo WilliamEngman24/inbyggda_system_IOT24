@@ -6,7 +6,7 @@
 //#include "freertos/task.h"
 //#include "driver/gpio.h"
 
-//implementera "assignment_1"
+//implement "assignment_1" as component
 
 using namespace std;
 

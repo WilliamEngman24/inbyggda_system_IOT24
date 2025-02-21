@@ -1,5 +1,7 @@
 #include "led_binary.h"
 
+#include <iostream>
+
 void LedBinary::init(int pin) 
 {
     gpio_config_t binary_led = 
@@ -16,62 +18,51 @@ void LedBinary::init(int pin)
 
 void LedBinary::update()
 {
-    if (!this->on == true) 
+    if (this->mode == 0) 
     {
-        if(this->switch_to == false && (double)this->off_timer == 0) //will only happen the first time when the off function hasn't been triggered once
-        {
-            this->off_timer = (double)xTaskGetTickCount() / 100;
-        }
-
-        if (this->switch_to) 
-        {
-            if (((double)xTaskGetTickCount()/ 100) - (double)this->on_timer >= this->milli_on) 
-            {
-                this->switch_to = false;
-                this->off_timer = (double)xTaskGetTickCount()/ 100;
-            }
-        }
-        else 
-        {
-            //printf("%d %d %d \n ", (int)xTaskGetTickCount()/ 100, (int)this->off_timer, (int)this->milli_off );
-            if (((double)xTaskGetTickCount()/ 100) - (double)this->off_timer >= this->milli_off) 
-            {
-                this->switch_to = true;
-                this->on_timer = (double)xTaskGetTickCount() / 100;
-        }
-        }
-        settLed(false);
+        settLed(this->on);
     }
     else 
     {
-        settLed(true);
+        blink(this->milli_on, this->milli_off);
     }
 }
 
-void LedBinary::settLed(bool state) // on  and off
+void LedBinary::settLed(bool level) // on and off with mode to determinate state of led
 {
-    if (state) 
-    {
-        this->on = true;
-        gpio_set_level((gpio_num_t)this->pin, 1); //sends a high signal to led, turns on
-    }
-    else 
-    {
-        this->on = false;
-        
-        if (this->switch_to == 1) 
-        {
-            gpio_set_level((gpio_num_t)this->pin, 1); //sends a high signal to led, turns on
-        }
-        else 
-        {
-            gpio_set_level((gpio_num_t)this->pin, 0); //sends a high signal to led, turns on
-        }
-    }
+    this->mode = 0;
+    this->on = level;
+    gpio_set_level((gpio_num_t)this->pin, level); //sends a signal equal to which state
 }
     
 void LedBinary::blink(double on, double off) //takes milliseconds
 {
-    this->milli_on = on / 1000;
-    this->milli_off = off / 1000;
+    this->mode = 1;
+    this->milli_on = on;
+    this->milli_off = off;
+
+    if(this->switch_to == false && (double)this->off_timer == 0) //will only happen the first time when the off function hasn't been triggered once
+    {
+        this->off_timer = xTaskGetTickCount(); // start off timer
+    }
+
+    if (this->switch_to) 
+    {
+        //std::cout << xTaskGetTickCount() << " " << this->on_timer << " " << this->milli_on << std::endl;
+        if (xTaskGetTickCount() - this->on_timer >= this->milli_on) 
+        {
+            this->switch_to = false;
+            this->off_timer = xTaskGetTickCount();
+        }
+    }
+    else 
+    {
+        if (xTaskGetTickCount() - (double)this->off_timer >= this->milli_off) 
+        {
+            this->switch_to = true;
+            this->on_timer = xTaskGetTickCount();
+        }
+    }
+    //std::cout << (double)xTaskGetTickCount()/ 100 << " " << (double)this->on_timer << " " <<(double)this->off_timer << std::endl;
+    gpio_set_level((gpio_num_t)this->pin, this->switch_to); //sends a high signal to led, turns on
 }

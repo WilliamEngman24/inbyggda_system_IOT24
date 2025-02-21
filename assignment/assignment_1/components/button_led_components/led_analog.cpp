@@ -1,5 +1,7 @@
 #include "led_analog.h"
 
+#include <iostream>
+
 #define RES 0b111111111111
 
 void LedAnalog::init(int pin) 
@@ -32,17 +34,23 @@ void LedAnalog::init(int pin)
 
 void LedAnalog::update()
 {
-    double current_time = (double)xTaskGetTickCount() / (double)100.00; //takes current time and turns into seconds
-
-    settLed(current_time); //sends time to the setting of the led
+    if (this->mode == 0) 
+    {
+        settLed(this->current_duty);
+    }
+    else 
+    {
+        settSin(this->period); //sends time to the setting of the led
+    }
 }
 
-void LedAnalog::settLed(double time)
+void LedAnalog::settLed(double duty)//takes constant duty time and mode
 {
-    this->current_duty = this->amp_or_vertical_shift * sin(this->period * time) + this->amp_or_vertical_shift; // A * sin(priod * time) + vertical shift
-
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, this->current_duty); //setts the duty to mimic sine curve at whatever x value
+    this->mode = 0;
+    this->current_duty = duty;
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty); //setts the duty to mimic sine curve at whatever x value
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    
 }
 
 void LedAnalog::settSin(double period) // takes milliseconds
@@ -51,5 +59,14 @@ void LedAnalog::settSin(double period) // takes milliseconds
     {
         period = 1000;
     }
-    this->period = (1000 / period) * M_PI * 2;
+    this->period = period;
+
+    this->mode = 1;
+
+    double current_time = (double)xTaskGetTickCount() / (double)100.00; //takes current time and turns into seconds
+
+    this->current_duty = this->amp_or_vertical_shift * sin(((1000 / period) * M_PI * 2) * current_time) + this->amp_or_vertical_shift; // A * sin(priod * time) + vertical shift
+    std::cout << this->current_duty << " " << current_time <<std::endl;
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, this->current_duty); //setts the duty to mimic sine curve at whatever x value
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }

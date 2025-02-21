@@ -21,6 +21,8 @@ class LedBinary
 
     bool switch_to;
 
+    bool mode;
+
     int pin;
 
     bool on;
@@ -30,7 +32,7 @@ class LedBinary
 
     void update();
 
-    void settLed(bool state);
+    void settLed(bool level);
 
     void blink(double on, double off);
 };

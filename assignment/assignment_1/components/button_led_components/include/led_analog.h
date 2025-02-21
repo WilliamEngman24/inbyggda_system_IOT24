@@ -18,12 +18,14 @@ class LedAnalog
 
     double current_duty;
 
+    double mode;
+
     public:
     void init(int pin);
 
     void update();
 
-    void settLed(double time);
+    void settLed(double duty);
 
     void settSin(double period);
 };
