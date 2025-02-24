@@ -3,9 +3,9 @@
 
 using namespace std;
 
-void Button::settPressed(int level)
+void Button::settPressed(int level) //rename
 {
-    this->button_state = level;
+    this->level = level;
 }
 
 bool Button::getPressed()
@@ -57,7 +57,8 @@ void Button::update()
         {
             this->last_pressed = xTaskGetTickCount();
             this->latch = false;
-            this->settPressed(DE_ON);
+            this->button_state = DE_ON;
+            this->settPressed(pressed);
 
             if (this->function != NULL) 
             {
@@ -70,7 +71,7 @@ void Button::update()
         //printf("is in debounce on\n");
         if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(10)) //when when bounce on is done
         {
-            this->settPressed(BTN_ON); //move on to button is on
+            this->button_state = BTN_ON;
         }
         break;
 
@@ -84,7 +85,8 @@ void Button::update()
         }
         else if (pressed == 0) //when the button has been let go
         {
-            this->settPressed(DE_OFF);
+            this->button_state = DE_OFF;
+            this->settPressed(pressed);
             //printf("has let go of button\n");
         }
         break;
@@ -93,7 +95,7 @@ void Button::update()
         //printf("is in deboune off\n");
         if (xTaskGetTickCount() - this->last_pressed > pdMS_TO_TICKS(10)) //when debounce off timer is done
         {
-            this->settPressed(BTN_OFF); //move on to button off state
+            this->button_state = BTN_OFF;
         }
         break;
     }
