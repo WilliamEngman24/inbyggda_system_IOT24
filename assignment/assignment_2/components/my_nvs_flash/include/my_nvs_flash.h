@@ -11,15 +11,25 @@ class Nvs
 private:
     nvs_handle_t handle_NVS;
 
-    size_t max_string_size = 15;
+    int max_string_size = 15;
 
     char* name_namespace;
     char* key_device;
     char* key_serial;
 
+    char* value_device = "";
+    char* value_serial = "";
+
+    esp_err_t error;
+
 public:
+
     nvs_handle_t* getHandle();
     char* getNameSpace();
+
+    char* getDeviceValue();
+    char* getSerialValue();
+
     void init();
     char* getDeviceName();
     char* getSerialNumber();
