@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <string.h>
 
 #include "esp_log.h"
 
@@ -52,9 +53,16 @@ char* Nvs::getDeviceName()
     if (this->error != ESP_OK) 
     {
         printf("failed to open in get device name\n");
+
+        return "failed";
     }
 
-    char* ret = (char*)malloc(this->max_string_size * sizeof(char*));
+    if (this->device_size == 0) 
+    {
+        this->device_size = 3600; //max is 4000 bytes
+    }
+
+    char ret[this->device_size + 1];
 
     size_t max_size = sizeof(ret);
 
@@ -69,12 +77,14 @@ char* Nvs::getDeviceName()
     if (this->error != ESP_OK) 
     {
         printf("get device serial failed\n");
+        return "failed";
     }
     else 
     {
         this->value_device = ret;
     }
 
+    free(ret);
     nvs_close(this->handle_NVS);
 
     return this->value_device;
@@ -86,9 +96,15 @@ char* Nvs::getSerialNumber()
     if (this->error != ESP_OK) 
     {
         printf("failed to open in get serial number\n");
+        return "failed";
     }
 
-    char* ret = (char*)malloc(this->max_string_size * sizeof(char*));
+    if (this->serial_size == 0) 
+    {
+        this->serial_size = 3600; //max is 4000 bytes
+    }
+
+    char ret [this->serial_size + 1];
 
     size_t max_size = sizeof(ret);
 
@@ -103,12 +119,14 @@ char* Nvs::getSerialNumber()
     if (this->error != ESP_OK) 
     {
         printf("get device name failed\n");
+        return "failed";
     }
     else 
     {
         this->value_serial = ret;
     }
 
+    free(ret);
     nvs_close(this->handle_NVS);
 
     return this->value_serial;
@@ -139,6 +157,8 @@ void Nvs::settDeviceName(char* name)
         {
             printf("couldn't commit");
         }
+
+        this->device_size = strlen(name) + 1;
     }
 
     std::cout << "namespace: " << this->name_namespace << std::endl;
@@ -170,11 +190,13 @@ void Nvs::settSerialNumber(char* number)
     else 
     {
         this->error = nvs_commit(this->handle_NVS);
-        
+
         if (this->error != ESP_OK) 
         {
             printf("couldn't commit");
         }
+
+        this->serial_size = strlen(number);
     }
 
     std::cout << "namespace: " << this->name_namespace << std::endl;

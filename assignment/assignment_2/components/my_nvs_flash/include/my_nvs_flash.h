@@ -14,11 +14,15 @@ private:
     int max_string_size = 15;
 
     char* name_namespace;
+    
     char* key_device;
     char* key_serial;
 
     char* value_device = "";
     char* value_serial = "";
+
+    int device_size = 0;
+    int serial_size = 0;
 
     esp_err_t error;
 
