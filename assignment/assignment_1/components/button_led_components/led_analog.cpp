@@ -64,7 +64,7 @@ void LedAnalog::settSin(double period) // takes period
     this->mode = 1;
 
     double current_time = (double)xTaskGetTickCount() / (double)100.00; //takes current time and turns into seconds
-
+    //printf("Current duty: %d\n", (int)this->current_duty);
     this->current_duty = this->amp_or_vertical_shift * sin(((1000 / period) * M_PI * 2) * current_time) + this->amp_or_vertical_shift; // A * sin(priod * time) + vertical shift
     //std::cout << this->current_duty << " " << current_time <<std::endl;
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, this->current_duty); //setts the duty to mimic sine curve at whatever x value

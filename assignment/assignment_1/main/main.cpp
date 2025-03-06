@@ -11,10 +11,10 @@
 #include "led_binary.h"
 #include "led_analog.h"
 
-#define BUTTON GPIO_NUM_7
-#define POTENTIOMETER ADC_CHANNEL_6
-#define LED_BINARY GPIO_NUM_2
-#define LED_ANALOG ADC_CHANNEL_3
+#define BUTTON GPIO_NUM_32
+//#define POTENTIOMETER ADC_CHANNEL_3
+#define LED_BINARY GPIO_NUM_33
+#define LED_ANALOG GPIO_NUM_25
 
 using namespace std;
 
@@ -40,24 +40,26 @@ extern "C"
         button_1->init(BUTTON, false);
         button_1->setOnPressed(button_function);
 
-        potentiometer_1->init(POTENTIOMETER);
-        potentiometer_1->setOnThreshold(500, true, potentiometer_function);
+        //potentiometer_1->init(POTENTIOMETER);
+        //potentiometer_1->setOnThreshold(500, true, potentiometer_function);
 
         led_binary_1->init(LED_BINARY);
         
-        led_binary_1->blink(1000, 1000);
-        //led_binary_1->settLed(false);
+        led_binary_1->settLed(false);
+        led_binary_1->blink(2000, 100);
+        led_binary_1->settLed(true);
 
         led_analog_1->init(LED_ANALOG);
         
-        led_analog_1->settSin(3000);
-        //led_analog_1->settLed(4000);
+        led_analog_1->settLed(3000);
+        led_analog_1->settSin(100);
+        led_analog_1->settLed(300);
 
         while(1) 
         {
             button_1->update();
 
-            potentiometer_1->update();
+            //potentiometer_1->update();
 
             led_binary_1->update();
 

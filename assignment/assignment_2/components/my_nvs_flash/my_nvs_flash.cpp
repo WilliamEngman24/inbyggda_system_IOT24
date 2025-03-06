@@ -6,6 +6,8 @@
 
 #include "my_nvs_flash.h"
 
+#define MAX_SIZE 100
+
 nvs_handle_t* Nvs::getHandle()
 {
     return &this->handle_NVS;
@@ -48,6 +50,7 @@ void Nvs::init()
 
 char* Nvs::getDeviceName()
 {
+    /*
     this->error = nvs_open(this->name_namespace, NVS_READONLY, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
@@ -56,64 +59,24 @@ char* Nvs::getDeviceName()
 
         return "failed";
     }
+    */
+    size_t max_size;
 
-    if (this->device_size == 0) 
+    this->error = nvs_get_str(this->handle_NVS, this->key_device, NULL, &max_size);
+
+    if (max_size == 0) //if the nvm has no memory
     {
-        this->device_size = 3600; //max is 4000 bytes
+        return "no_value";
     }
 
-    char ret[this->device_size + 1];
-
-    size_t max_size = sizeof(ret);
+    char* ret = (char*)malloc(max_size);
 
     this->error = nvs_get_str(this->handle_NVS, this->key_device, ret, &max_size);
 
-    std::cout << "namespace: " << this->name_namespace << std::endl;
-    std::cout << "handle: " << this->handle_NVS << std::endl;
-    std::cout << "device: " << this->key_device << std::endl;
-    std::cout << "name: " << ret << std::endl;
     std::cout << "--------" << std::endl;
-
-    if (this->error != ESP_OK) 
-    {
-        printf("get device serial failed\n");
-        return "failed";
-    }
-    else 
-    {
-        this->value_device = ret;
-    }
-
-    free(ret);
-    nvs_close(this->handle_NVS);
-
-    return this->value_device;
-}
-char* Nvs::getSerialNumber() 
-{
-    this->error = nvs_open(this->name_namespace, NVS_READONLY, &this->handle_NVS);
-
-    if (this->error != ESP_OK) 
-    {
-        printf("failed to open in get serial number\n");
-        return "failed";
-    }
-
-    if (this->serial_size == 0) 
-    {
-        this->serial_size = 3600; //max is 4000 bytes
-    }
-
-    char ret [this->serial_size + 1];
-
-    size_t max_size = sizeof(ret);
-
-    this->error = nvs_get_str(this->handle_NVS, this->key_serial, ret, &max_size);
-
-    std::cout << "namespace: " << this->name_namespace << std::endl;
-    std::cout << "handle: " << this->handle_NVS << std::endl;
-    std::cout << "device: " << this->key_serial << std::endl;
+    std::cout << "Get device "<< std::endl;
     std::cout << "name: " << ret << std::endl;
+    std::cout << "max size: " << max_size << std::endl;
     std::cout << "--------" << std::endl;
 
     if (this->error != ESP_OK) 
@@ -123,25 +86,78 @@ char* Nvs::getSerialNumber()
     }
     else 
     {
-        this->value_serial = ret;
+        free(this->value_device);
+        this->value_device = (char*)malloc(strlen(ret) + 1);
+        strcpy(this->value_serial, ret);
     }
 
     free(ret);
-    nvs_close(this->handle_NVS);
+    //nvs_close(this->handle_NVS);
+    printf("value_serial: %s", this->value_device);
 
+    printf("%s\n", getDeviceValue());
+    return this->value_device;
+}
+char* Nvs::getSerialNumber() 
+{
+    /*
+    this->error = nvs_open(this->name_namespace, NVS_READONLY, &this->handle_NVS);
+
+    if (this->error != ESP_OK) 
+    {
+        printf("failed to open in get serial number\n");
+        return "failed";
+    }
+    */
+
+    size_t max_size;
+
+    this->error = nvs_get_str(this->handle_NVS, this->key_serial, NULL, &max_size);
+
+    if (max_size == 0) 
+    {
+        return "no_value";
+    }
+
+    char* ret = (char*)malloc(max_size); //malloc here
+
+    this->error = nvs_get_str(this->handle_NVS, this->key_serial, ret, &max_size);
+
+    std::cout << "--------" << std::endl;
+    std::cout << "Get serial " << std::endl;
+    std::cout << "name: " << ret << std::endl;
+    std::cout << "max size: " << max_size << std::endl;
+    std::cout << "--------" << std::endl;
+
+    if (this->error != ESP_OK) 
+    {
+        printf("get serial number failed\n");
+        return "failed";
+    }
+    else 
+    {
+        free(value_serial);
+        this->value_serial = (char*)malloc(strlen(ret) + 1);
+        strcpy(this->value_serial, ret);
+    }
+
+    free(ret);
+    //nvs_close(this->handle_NVS);
+    printf("value_serial: %s", this->value_serial);
+    printf("%s\n", getSerialValue());
     return this->value_serial;
 }
 
-void Nvs::settDeviceName(char* name) 
+void Nvs::setDeviceName(char* name) 
 {
+    /*
     this->error = nvs_open(this->name_namespace, NVS_READWRITE, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
         printf("failed to open in sett device name\n");
     }
-
-    name = name + '\0';
+    */
 
     this->error = nvs_set_str(this->handle_NVS, this->key_device, name);
 
@@ -151,60 +167,58 @@ void Nvs::settDeviceName(char* name)
     }
     else 
     {
+        this->value_device = name;
+
         this->error = nvs_commit(this->handle_NVS);
 
         if (this->error != ESP_OK) 
         {
-            printf("couldn't commit");
+            printf("couldn't commit in sett device");
         }
-
-        this->device_size = strlen(name) + 1;
     }
 
-    std::cout << "namespace: " << this->name_namespace << std::endl;
-    std::cout << "handle: " << this->handle_NVS << std::endl;
-    std::cout << "device: " << this->key_device << std::endl;
+    std::cout << "--------" << std::endl;
+    std::cout << "Set device" << std::endl;
     std::cout << "name: " << name << std::endl;
     std::cout << "--------" << std::endl;
 
-    nvs_close(this->handle_NVS);
+    //nvs_close(this->handle_NVS);
 
 }
-void Nvs::settSerialNumber(char* number) 
+void Nvs::setSerialNumber(char* number) 
 {    
+    /*
     this->error = nvs_open(this->name_namespace, NVS_READWRITE, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
         printf("failed to open in sett serial number\n");
     }
+    */
 
-    number = number + '\0';
-
-    this->error = nvs_set_str(this->handle_NVS, this->key_serial, number);
+    this->error = nvs_set_str(this->handle_NVS, this->key_serial, number); // try to set string to nvs
     
-    if (this->error != ESP_OK) 
+    if (this->error != ESP_OK) //
     {
         printf("sett device serial failed\n");
     }
     else 
     {
+        this->value_serial = number;
+
         this->error = nvs_commit(this->handle_NVS);
 
         if (this->error != ESP_OK) 
         {
-            printf("couldn't commit");
+            printf("couldn't commit in sett serial");
         }
-
-        this->serial_size = strlen(number);
     }
 
-    std::cout << "namespace: " << this->name_namespace << std::endl;
-    std::cout << "handle: " << this->handle_NVS << std::endl;
-    std::cout << "serial: " << this->key_serial << std::endl;
+    std::cout << "--------" << std::endl;
+    std::cout << "Set serial" << std::endl;
     std::cout << "number: " << number << std::endl;
     std::cout << "--------" << std::endl;
 
-    nvs_close(this->handle_NVS);
+    //nvs_close(this->handle_NVS);
 
 }

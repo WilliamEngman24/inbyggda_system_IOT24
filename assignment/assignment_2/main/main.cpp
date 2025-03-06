@@ -9,35 +9,38 @@ extern "C"
     {
         Nvs* new_nvs = new Nvs();
 
+        esp_err_t error;
+
+        nvs_flash_erase();
+
         new_nvs->init();
 
-        //nvs_open(new_nvs->getNameSpace(), NVS_READWRITE, new_nvs->getHandle());
-        
-        printf("before using NVS:\n");
-        printf("no values if fresh start, should say second and 2 if not new\n");
-        printf("Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceName(), new_nvs->getSerialNumber());
+        error = nvs_open(new_nvs->getNameSpace(), NVS_READWRITE, new_nvs->getHandle());
+        if (error != ESP_OK) 
+        {
+            printf("failed to open in sett device name\n");
+        }
+        else 
+        {
+            new_nvs->setDeviceName("first");
+            new_nvs->setSerialNumber("111");
 
-        new_nvs->settDeviceName("first");
-        new_nvs->settSerialNumber("1");
-        
-        printf("after using set and get NVS:\n");
-        printf("new values\n");
-        printf("Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceName(), new_nvs->getSerialNumber());
+            printf("    Set and get\n");
+            printf("    Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceName(), new_nvs->getSerialNumber());
 
-        new_nvs->settDeviceName("fail_if_show");
-        new_nvs->settSerialNumber("1337");
+            new_nvs->setDeviceName("second");
+            new_nvs->setSerialNumber("2222");
+    
+            printf("    Set without get\n");
+            printf("    Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceValue(), new_nvs->getSerialValue());
 
-        printf("after using sett without get NVS:\n");
-        printf("same values as before\n");
-        printf("Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceValue(), new_nvs->getSerialValue());
+            new_nvs->setDeviceName("third");
+            new_nvs->setSerialNumber("33");
 
-        new_nvs->settDeviceName("second");
-        new_nvs->settSerialNumber("2");
-
-        printf("after using sett and get NVS:\n");
-        printf("new values\n");
-        printf("Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceName(), new_nvs->getSerialNumber());
-        //nvs_commit(*new_nvs->getHandle());
-        //nvs_close(*new_nvs->getHandle());
+            printf("    Set and get\n");
+            printf("    Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceName(), new_nvs->getSerialNumber());
+            //nvs_commit(*new_nvs->getHandle());
+            nvs_close(*new_nvs->getHandle());
+        }
     }
 }
