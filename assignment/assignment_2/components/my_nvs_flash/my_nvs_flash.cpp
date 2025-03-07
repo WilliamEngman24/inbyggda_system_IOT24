@@ -46,11 +46,14 @@ void Nvs::init()
     this->name_namespace = "default_init";
     this->key_device = "device";
     this->key_serial = "serial";
+
+    setDeviceName(getDeviceName());
+    setSerialNumber(getSerialNumber());
 }
 
 char* Nvs::getDeviceName()
 {
-    /*
+    
     this->error = nvs_open(this->name_namespace, NVS_READONLY, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
@@ -59,14 +62,14 @@ char* Nvs::getDeviceName()
 
         return "failed";
     }
-    */
+    
     size_t max_size;
 
     this->error = nvs_get_str(this->handle_NVS, this->key_device, NULL, &max_size);
 
     if (max_size == 0) //if the nvm has no memory
     {
-        return "no_value\n";
+        return "";
     }
 
     char* ret = (char*)malloc(max_size * sizeof(char));
@@ -87,22 +90,19 @@ char* Nvs::getDeviceName()
 
     free(ret);
     //nvs_close(this->handle_NVS);
-    printf("value_serial: %s", this->value_device);
-
-    printf("%s\n", getDeviceValue());
     return this->value_device;
 }
 char* Nvs::getSerialNumber() 
 {
-    /*
+    
     this->error = nvs_open(this->name_namespace, NVS_READONLY, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
         printf("failed to open in get serial number\n");
-        return "failed";
+        return "";
     }
-    */
+    
 
     size_t max_size;
 
@@ -110,7 +110,7 @@ char* Nvs::getSerialNumber()
 
     if (max_size == 0) 
     {
-        return "no_value\n";
+        return "";
     }
 
     char* ret = (char*)malloc(max_size * sizeof(char));
@@ -131,21 +131,24 @@ char* Nvs::getSerialNumber()
 
     free(ret);
     //nvs_close(this->handle_NVS);
-    printf("value_serial: %s", this->value_serial);
-    printf("%s\n", getSerialValue());
     return this->value_serial;
 }
 
 void Nvs::setDeviceName(char* name) 
 {
-    /*
+    
     this->error = nvs_open(this->name_namespace, NVS_READWRITE, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
         printf("failed to open in sett device name\n");
     }
-    */
+    
+    if (strlen(name) == 0) 
+    {
+        printf("Cannot store an empty value\n");
+        return;
+    }
 
     this->error = nvs_set_str(this->handle_NVS, this->key_device, name);
 
@@ -159,7 +162,7 @@ void Nvs::setDeviceName(char* name)
 
         if (this->error != ESP_OK) 
         {
-            printf("couldn't commit in sett device\n");
+            printf("couldn't commit in set device\n");
         }
         else
         {
@@ -178,18 +181,23 @@ void Nvs::setDeviceName(char* name)
 }
 void Nvs::setSerialNumber(char* number) 
 {    
-    /*
+    
     this->error = nvs_open(this->name_namespace, NVS_READWRITE, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
         printf("failed to open in sett serial number\n");
     }
-    */
+    
+    if (strlen(number) == 0) 
+    {
+        printf("Cannot store an empty value\n");
+        return;
+    }
 
     this->error = nvs_set_str(this->handle_NVS, this->key_serial, number); // try to set string to nvs
     
-    if (this->error != ESP_OK) //
+    if (this->error != ESP_OK)
     {
         printf("sett device serial failed\n");
     }
@@ -199,7 +207,7 @@ void Nvs::setSerialNumber(char* number)
 
         if (this->error != ESP_OK) 
         {
-            printf("couldn't commit in sett serial\n");
+            printf("couldn't commit in set serial\n");
         }
         else
         {

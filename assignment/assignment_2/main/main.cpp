@@ -18,7 +18,7 @@ extern "C"
         error = nvs_open(new_nvs->getNameSpace(), NVS_READWRITE, new_nvs->getHandle());
         if (error != ESP_OK) 
         {
-            printf("failed to open in sett device name\n");
+            printf("failed to open in main\n");
         }
         else 
         {
@@ -28,12 +28,12 @@ extern "C"
             printf("    Set and get\n");
             printf("    Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceName(), new_nvs->getSerialNumber());
 
-            new_nvs->setDeviceName("second");
-            new_nvs->setSerialNumber("2222");
+            new_nvs->setDeviceName("");
+            new_nvs->setSerialNumber("");
     
-            printf("    Set without get\n");
+            printf("    Set without values: \n");
             printf("    Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceValue(), new_nvs->getSerialValue());
-
+            
             new_nvs->setDeviceName("third");
             new_nvs->setSerialNumber("33");
 
