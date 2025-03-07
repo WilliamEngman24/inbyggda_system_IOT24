@@ -66,10 +66,10 @@ char* Nvs::getDeviceName()
 
     if (max_size == 0) //if the nvm has no memory
     {
-        return "no_value";
+        return "no_value\n";
     }
 
-    char* ret = (char*)malloc(max_size);
+    char* ret = (char*)malloc(max_size * sizeof(char));
 
     this->error = nvs_get_str(this->handle_NVS, this->key_device, ret, &max_size);
 
@@ -82,13 +82,7 @@ char* Nvs::getDeviceName()
     if (this->error != ESP_OK) 
     {
         printf("get device name failed\n");
-        return "failed";
-    }
-    else 
-    {
-        free(this->value_device);
-        this->value_device = (char*)malloc(strlen(ret) + 1);
-        strcpy(this->value_serial, ret);
+        return "failed\n";
     }
 
     free(ret);
@@ -116,10 +110,10 @@ char* Nvs::getSerialNumber()
 
     if (max_size == 0) 
     {
-        return "no_value";
+        return "no_value\n";
     }
 
-    char* ret = (char*)malloc(max_size); //malloc here
+    char* ret = (char*)malloc(max_size * sizeof(char));
 
     this->error = nvs_get_str(this->handle_NVS, this->key_serial, ret, &max_size);
 
@@ -132,13 +126,7 @@ char* Nvs::getSerialNumber()
     if (this->error != ESP_OK) 
     {
         printf("get serial number failed\n");
-        return "failed";
-    }
-    else 
-    {
-        free(value_serial);
-        this->value_serial = (char*)malloc(strlen(ret) + 1);
-        strcpy(this->value_serial, ret);
+        return "failed\n";
     }
 
     free(ret);
@@ -167,13 +155,16 @@ void Nvs::setDeviceName(char* name)
     }
     else 
     {
-        this->value_device = name;
-
         this->error = nvs_commit(this->handle_NVS);
 
         if (this->error != ESP_OK) 
         {
-            printf("couldn't commit in sett device");
+            printf("couldn't commit in sett device\n");
+        }
+        else
+        {
+            this->value_device = (char*)malloc(strlen(name) * sizeof(char));
+            strcpy(this->value_device, name);
         }
     }
 
@@ -204,13 +195,16 @@ void Nvs::setSerialNumber(char* number)
     }
     else 
     {
-        this->value_serial = number;
-
         this->error = nvs_commit(this->handle_NVS);
 
         if (this->error != ESP_OK) 
         {
-            printf("couldn't commit in sett serial");
+            printf("couldn't commit in sett serial\n");
+        }
+        else
+        {
+            this->value_serial = (char*)malloc(strlen(number) * sizeof(char));
+            strcpy(this->value_serial, number);
         }
     }
 
