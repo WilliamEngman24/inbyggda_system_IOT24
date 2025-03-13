@@ -7,14 +7,16 @@
 #include "my_nvs_flash.h"
 
 #define MAX_SIZE 100
+#define MAX_KEY_NAME 14
 
+//vvv help functions used in main
 nvs_handle_t* Nvs::getHandle()
 {
     return &this->handle_NVS;
 }
 char* Nvs::getNameSpace()
 {
-    return this->name_namespace;
+    return this->namespace_NVS;
 }
 char* Nvs::getDeviceValue()
 {
@@ -24,8 +26,9 @@ char* Nvs::getSerialValue()
 {
     return this->value_serial;
 }
+//^^^
 
-void Nvs::init() 
+void Nvs::init(char* nameSpace, char* device, char* serial) 
 {
     esp_err_t new_NVS = nvs_flash_init(); //init the default
 
@@ -43,9 +46,18 @@ void Nvs::init()
     //checks if the NVS was created correctly vvv
     ESP_ERROR_CHECK(new_NVS); 
 
-    this->name_namespace = "default_init";
-    this->key_device = "device";
-    this->key_serial = "serial";
+    if (strlen(nameSpace) <= MAX_KEY_NAME && strlen(device) <= MAX_KEY_NAME && strlen(serial) <= MAX_KEY_NAME)
+    { 
+        this->namespace_NVS = nameSpace;
+        this->key_device = device;
+        this->key_serial = serial;
+    }
+    else
+    {
+        printf("key names cannot be larger than 14\n\
+            keys have not been assigned\n");
+
+    }
 
     setDeviceName(getDeviceName());
     setSerialNumber(getSerialNumber());
@@ -53,8 +65,7 @@ void Nvs::init()
 
 char* Nvs::getDeviceName()
 {
-    
-    this->error = nvs_open(this->name_namespace, NVS_READONLY, &this->handle_NVS);
+    this->error = nvs_open(this->namespace_NVS, NVS_READONLY, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
@@ -62,14 +73,15 @@ char* Nvs::getDeviceName()
 
         return "failed";
     }
-    
+
     size_t max_size;
 
     this->error = nvs_get_str(this->handle_NVS, this->key_device, NULL, &max_size);
 
     if (max_size == 0) //if the nvm has no memory
     {
-        return "";
+        printf("no memory of device key was found on NVS\n");
+        return " ";
     }
 
     char* ret = (char*)malloc(max_size * sizeof(char));
@@ -85,24 +97,26 @@ char* Nvs::getDeviceName()
     if (this->error != ESP_OK) 
     {
         printf("get device name failed\n");
-        return "failed\n";
+        return " ";
     }
 
+    this->value_device = (char*)malloc(strlen(ret) * sizeof(char));
+    strcpy(this->value_device, ret);
+
     free(ret);
+
     //nvs_close(this->handle_NVS);
     return this->value_device;
 }
 char* Nvs::getSerialNumber() 
 {
-    
-    this->error = nvs_open(this->name_namespace, NVS_READONLY, &this->handle_NVS);
+    this->error = nvs_open(this->namespace_NVS, NVS_READONLY, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
         printf("failed to open in get serial number\n");
         return "";
     }
-    
 
     size_t max_size;
 
@@ -110,7 +124,8 @@ char* Nvs::getSerialNumber()
 
     if (max_size == 0) 
     {
-        return "";
+        printf("no memory of serial key was found on NVS\n");
+        return " ";
     }
 
     char* ret = (char*)malloc(max_size * sizeof(char));
@@ -126,8 +141,11 @@ char* Nvs::getSerialNumber()
     if (this->error != ESP_OK) 
     {
         printf("get serial number failed\n");
-        return "failed\n";
+        return " ";
     }
+
+    this->value_serial = (char*)malloc(strlen(ret) * sizeof(char));
+    strcpy(this->value_serial, ret);
 
     free(ret);
     //nvs_close(this->handle_NVS);
@@ -136,14 +154,13 @@ char* Nvs::getSerialNumber()
 
 void Nvs::setDeviceName(char* name) 
 {
-    
-    this->error = nvs_open(this->name_namespace, NVS_READWRITE, &this->handle_NVS);
+    this->error = nvs_open(this->namespace_NVS, NVS_READWRITE, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
         printf("failed to open in sett device name\n");
     }
-    
+
     if (strlen(name) == 0) 
     {
         printf("Cannot store an empty value\n");
@@ -181,14 +198,13 @@ void Nvs::setDeviceName(char* name)
 }
 void Nvs::setSerialNumber(char* number) 
 {    
-    
-    this->error = nvs_open(this->name_namespace, NVS_READWRITE, &this->handle_NVS);
+    this->error = nvs_open(this->namespace_NVS, NVS_READWRITE, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
         printf("failed to open in sett serial number\n");
     }
-    
+
     if (strlen(number) == 0) 
     {
         printf("Cannot store an empty value\n");

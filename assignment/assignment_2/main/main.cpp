@@ -11,9 +11,9 @@ extern "C"
 
         esp_err_t error;
 
-        nvs_flash_erase();
+        //nvs_flash_erase();
 
-        new_nvs->init();
+        new_nvs->init("default_init", "device", "serial");
 
         error = nvs_open(new_nvs->getNameSpace(), NVS_READWRITE, new_nvs->getHandle());
         if (error != ESP_OK) 
@@ -22,6 +22,9 @@ extern "C"
         }
         else 
         {
+            printf("    Get from NVS before set: \n");
+            printf("    Device Name: %s | Serial Number: %s \n\n", new_nvs->getDeviceName(), new_nvs->getSerialNumber());
+
             new_nvs->setDeviceName("first");
             new_nvs->setSerialNumber("111");
 

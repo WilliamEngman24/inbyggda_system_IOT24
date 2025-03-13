@@ -11,7 +11,7 @@ class Nvs
 private:
     nvs_handle_t handle_NVS;
 
-    char* name_namespace;
+    char* namespace_NVS;
     
     char* key_device;
     char* key_serial;
@@ -29,7 +29,7 @@ public:
     char* getDeviceValue();
     char* getSerialValue();
 
-    void init();
+    void init(char* nameSpace, char* device, char* serial);
     char* getDeviceName();
     char* getSerialNumber();
     void setDeviceName(char* name);
