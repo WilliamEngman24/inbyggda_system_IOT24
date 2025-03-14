@@ -16,8 +16,8 @@ private:
     char* key_device;
     char* key_serial;
 
-    char* value_device;
-    char* value_serial;
+    char* value_device = "\0";
+    char* value_serial = "\0";
 
     esp_err_t error;
 

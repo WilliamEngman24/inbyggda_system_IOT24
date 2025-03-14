@@ -9,6 +9,9 @@
 #define MAX_SIZE 100
 #define MAX_KEY_NAME 14
 
+#define TAGE "ERROR"
+#define TAGW "WARNING"
+
 //vvv help functions used in main
 nvs_handle_t* Nvs::getHandle()
 {
@@ -18,6 +21,7 @@ char* Nvs::getNameSpace()
 {
     return this->namespace_NVS;
 }
+//^^^ may not be usefull
 char* Nvs::getDeviceValue()
 {
     return this->value_device;
@@ -54,9 +58,8 @@ void Nvs::init(char* nameSpace, char* device, char* serial)
     }
     else
     {
-        printf("key names cannot be larger than 14\n\
-            keys have not been assigned\n");
-
+        ESP_LOGE(TAGE, "Key names cannot be larger than 14");
+        ESP_LOGW(TAGW, "Keys have not been assigned");
     }
 
     setDeviceName(getDeviceName());
@@ -69,43 +72,46 @@ char* Nvs::getDeviceName()
 
     if (this->error != ESP_OK) 
     {
-        printf("failed to open in get device name\n");
-
-        return "failed";
+        ESP_LOGE(TAGE, "Failed to open in get device name");
     }
-
-    size_t max_size;
-
-    this->error = nvs_get_str(this->handle_NVS, this->key_device, NULL, &max_size);
-
-    if (max_size == 0) //if the nvm has no memory
+    else
     {
-        printf("no memory of device key was found on NVS\n");
-        return " ";
+        size_t max_size;
+
+        this->error = nvs_get_str(this->handle_NVS, this->key_device, NULL, &max_size);
+
+        if (max_size == 0) //if the nvm has no memory
+        {
+            ESP_LOGW(TAGW, "No memory of device key was found on NVS");
+        }
+        else 
+        {
+            char* ret = (char*)malloc(max_size * sizeof(char));
+
+            this->error = nvs_get_str(this->handle_NVS, this->key_device, ret, &max_size);
+
+            /*
+            std::cout << "--------" << std::endl;
+            std::cout << "Get device "<< std::endl;
+            std::cout << "name: " << ret << std::endl;
+            std::cout << "max size: " << max_size << std::endl;
+            std::cout << "--------" << std::endl;
+            */
+
+            if (this->error != ESP_OK) 
+            {
+                ESP_LOGE(TAGE, "Get device name failed");
+            }
+            else 
+            {
+                this->value_device = (char*)malloc(strlen(ret) * sizeof(char));
+                strcpy(this->value_device, ret);
+
+                free(ret);
+            }
+        }
     }
 
-    char* ret = (char*)malloc(max_size * sizeof(char));
-
-    this->error = nvs_get_str(this->handle_NVS, this->key_device, ret, &max_size);
-
-    std::cout << "--------" << std::endl;
-    std::cout << "Get device "<< std::endl;
-    std::cout << "name: " << ret << std::endl;
-    std::cout << "max size: " << max_size << std::endl;
-    std::cout << "--------" << std::endl;
-
-    if (this->error != ESP_OK) 
-    {
-        printf("get device name failed\n");
-        return " ";
-    }
-
-    this->value_device = (char*)malloc(strlen(ret) * sizeof(char));
-    strcpy(this->value_device, ret);
-
-    free(ret);
-
-    //nvs_close(this->handle_NVS);
     return this->value_device;
 }
 char* Nvs::getSerialNumber() 
@@ -114,41 +120,46 @@ char* Nvs::getSerialNumber()
 
     if (this->error != ESP_OK) 
     {
-        printf("failed to open in get serial number\n");
-        return "";
+        ESP_LOGE(TAGE, "Failed to open in get serial number");
     }
-
-    size_t max_size;
-
-    this->error = nvs_get_str(this->handle_NVS, this->key_serial, NULL, &max_size);
-
-    if (max_size == 0) 
+    else 
     {
-        printf("no memory of serial key was found on NVS\n");
-        return " ";
+        size_t max_size;
+
+        this->error = nvs_get_str(this->handle_NVS, this->key_serial, NULL, &max_size);
+
+        if (max_size == 0) 
+        {
+            ESP_LOGW(TAGW, "No memory of serial key was found on NVS");
+        }
+        else
+        {
+            char* ret = (char*)malloc(max_size * sizeof(char));
+
+            this->error = nvs_get_str(this->handle_NVS, this->key_serial, ret, &max_size);
+
+            /*
+            std::cout << "--------" << std::endl;
+            std::cout << "Get serial " << std::endl;
+            std::cout << "name: " << ret << std::endl;
+            std::cout << "max size: " << max_size << std::endl;
+            std::cout << "--------" << std::endl;
+            */
+
+            if (this->error != ESP_OK) 
+            {
+                ESP_LOGE(TAGE, "Get serial number failed");
+            }
+            else
+            {
+                this->value_serial = (char*)malloc(strlen(ret) * sizeof(char));
+                strcpy(this->value_serial, ret);
+
+                free(ret);
+            }
+        }
     }
 
-    char* ret = (char*)malloc(max_size * sizeof(char));
-
-    this->error = nvs_get_str(this->handle_NVS, this->key_serial, ret, &max_size);
-
-    std::cout << "--------" << std::endl;
-    std::cout << "Get serial " << std::endl;
-    std::cout << "name: " << ret << std::endl;
-    std::cout << "max size: " << max_size << std::endl;
-    std::cout << "--------" << std::endl;
-
-    if (this->error != ESP_OK) 
-    {
-        printf("get serial number failed\n");
-        return " ";
-    }
-
-    this->value_serial = (char*)malloc(strlen(ret) * sizeof(char));
-    strcpy(this->value_serial, ret);
-
-    free(ret);
-    //nvs_close(this->handle_NVS);
     return this->value_serial;
 }
 
@@ -158,43 +169,44 @@ void Nvs::setDeviceName(char* name)
 
     if (this->error != ESP_OK) 
     {
-        printf("failed to open in sett device name\n");
-    }
-
-    if (strlen(name) == 0) 
-    {
-        printf("Cannot store an empty value\n");
-        return;
-    }
-
-    this->error = nvs_set_str(this->handle_NVS, this->key_device, name);
-
-    if (this->error != ESP_OK) 
-    {
-        printf("sett device name failed\n");
+        ESP_LOGE(TAGE, "Failed to open in sett device name");
     }
     else 
     {
-        this->error = nvs_commit(this->handle_NVS);
-
-        if (this->error != ESP_OK) 
+        if (strlen(name) == 0) 
         {
-            printf("couldn't commit in set device\n");
+            ESP_LOGW(TAGW, "Cannot store an empty value in device name");
         }
-        else
+        else 
         {
-            this->value_device = (char*)malloc(strlen(name) * sizeof(char));
-            strcpy(this->value_device, name);
+            this->error = nvs_set_str(this->handle_NVS, this->key_device, name);
+
+            if (this->error != ESP_OK) 
+            {
+                ESP_LOGE(TAGE, "Set device name failed");
+            }
+            else 
+            {
+                this->error = nvs_commit(this->handle_NVS);
+
+                if (this->error != ESP_OK) 
+                {
+                    ESP_LOGE(TAGE, "Couldn't commit in set device");
+                }
+                else
+                {
+                    this->value_device = (char*)malloc(strlen(name) * sizeof(char));
+                    strcpy(this->value_device, name);
+                }
+            }
+            /*
+            std::cout << "--------" << std::endl;
+            std::cout << "Set device" << std::endl;
+            std::cout << "name: " << name << std::endl;
+            std::cout << "--------" << std::endl;
+            */
         }
     }
-
-    std::cout << "--------" << std::endl;
-    std::cout << "Set device" << std::endl;
-    std::cout << "name: " << name << std::endl;
-    std::cout << "--------" << std::endl;
-
-    //nvs_close(this->handle_NVS);
-
 }
 void Nvs::setSerialNumber(char* number) 
 {    
@@ -202,41 +214,42 @@ void Nvs::setSerialNumber(char* number)
 
     if (this->error != ESP_OK) 
     {
-        printf("failed to open in sett serial number\n");
+        ESP_LOGE(TAGE, "Failed to open in sett serial number");
     }
-
-    if (strlen(number) == 0) 
+    else
     {
-        printf("Cannot store an empty value\n");
-        return;
-    }
-
-    this->error = nvs_set_str(this->handle_NVS, this->key_serial, number); // try to set string to nvs
-    
-    if (this->error != ESP_OK)
-    {
-        printf("sett device serial failed\n");
-    }
-    else 
-    {
-        this->error = nvs_commit(this->handle_NVS);
-
-        if (this->error != ESP_OK) 
+        if (strlen(number) == 0) 
         {
-            printf("couldn't commit in set serial\n");
+            ESP_LOGW(TAGW, "Cannot store an empty value in serial number");
         }
         else
         {
-            this->value_serial = (char*)malloc(strlen(number) * sizeof(char));
-            strcpy(this->value_serial, number);
+            this->error = nvs_set_str(this->handle_NVS, this->key_serial, number); // try to set string to nvs
+            
+            if (this->error != ESP_OK)
+            {
+                ESP_LOGE(TAGE, "Set device serial failed");
+            }
+            else 
+            {
+                this->error = nvs_commit(this->handle_NVS);
+
+                if (this->error != ESP_OK) 
+                {
+                    ESP_LOGE(TAGE, "Couldn't commit in set serial");
+                }
+                else
+                {
+                    this->value_serial = (char*)malloc(strlen(number) * sizeof(char));
+                    strcpy(this->value_serial, number);
+                }
+            }
+            /*
+            std::cout << "--------" << std::endl;
+            std::cout << "Set serial" << std::endl;
+            std::cout << "number: " << number << std::endl;
+            std::cout << "--------" << std::endl;
+            */
         }
     }
-
-    std::cout << "--------" << std::endl;
-    std::cout << "Set serial" << std::endl;
-    std::cout << "number: " << number << std::endl;
-    std::cout << "--------" << std::endl;
-
-    //nvs_close(this->handle_NVS);
-
 }
