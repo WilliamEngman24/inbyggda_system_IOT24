@@ -29,7 +29,7 @@ public:
     char* getDeviceValue();
     char* getSerialValue();
 
-    void init(char* nameSpace, char* device, char* serial);
+    bool init(char* nameSpace, char* device, char* serial);
     char* getDeviceName();
     char* getSerialNumber();
     void setDeviceName(char* name);

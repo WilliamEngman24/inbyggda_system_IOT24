@@ -32,7 +32,7 @@ char* Nvs::getSerialValue()
 }
 //^^^
 
-void Nvs::init(char* nameSpace, char* device, char* serial) 
+bool Nvs::init(char* nameSpace, char* device, char* serial) 
 {
     esp_err_t new_NVS = nvs_flash_init(); //init the default
 
@@ -55,20 +55,29 @@ void Nvs::init(char* nameSpace, char* device, char* serial)
         this->namespace_NVS = nameSpace;
         this->key_device = device;
         this->key_serial = serial;
+
+        setDeviceName(getDeviceName());
+        setSerialNumber(getSerialNumber());
+
+        return true;
     }
     else
     {
         ESP_LOGE(TAGE, "Key names cannot be larger than 14");
-        ESP_LOGW(TAGW, "Keys have not been assigned");
-    }
+        ESP_LOGE(TAGE, "Keys have not been assigned, init failed");
 
-    setDeviceName(getDeviceName());
-    setSerialNumber(getSerialNumber());
+        return false;
+    }
 }
 
 char* Nvs::getDeviceName()
 {
-    this->error = nvs_open(this->namespace_NVS, NVS_READONLY, &this->handle_NVS);
+    this->error = nvs_open(this->namespace_NVS, NVS_READWRITE, &this->handle_NVS);
+
+    if(this->error == ESP_ERR_NVS_NOT_FOUND) 
+    {
+        printf("nvs not found\n");
+    }
 
     if (this->error != ESP_OK) 
     {
@@ -86,17 +95,15 @@ char* Nvs::getDeviceName()
         }
         else 
         {
+            if(this->error == ESP_ERR_NVS_NOT_FOUND) 
+            {
+                setDeviceName(" ");
+                this->error = nvs_get_str(this->handle_NVS, this->key_device, NULL, &max_size);
+            }
+
             char* ret = (char*)malloc(max_size * sizeof(char));
 
             this->error = nvs_get_str(this->handle_NVS, this->key_device, ret, &max_size);
-
-            /*
-            std::cout << "--------" << std::endl;
-            std::cout << "Get device "<< std::endl;
-            std::cout << "name: " << ret << std::endl;
-            std::cout << "max size: " << max_size << std::endl;
-            std::cout << "--------" << std::endl;
-            */
 
             if (this->error != ESP_OK) 
             {
@@ -116,7 +123,7 @@ char* Nvs::getDeviceName()
 }
 char* Nvs::getSerialNumber() 
 {
-    this->error = nvs_open(this->namespace_NVS, NVS_READONLY, &this->handle_NVS);
+    this->error = nvs_open(this->namespace_NVS, NVS_READWRITE, &this->handle_NVS);
 
     if (this->error != ESP_OK) 
     {
@@ -134,17 +141,14 @@ char* Nvs::getSerialNumber()
         }
         else
         {
+            if (this->error == ESP_ERR_NVS_NOT_FOUND)
+            {
+                setSerialNumber(" ");
+                this->error = nvs_get_str(this->handle_NVS, this->key_serial, NULL, &max_size);
+            }
             char* ret = (char*)malloc(max_size * sizeof(char));
 
             this->error = nvs_get_str(this->handle_NVS, this->key_serial, ret, &max_size);
-
-            /*
-            std::cout << "--------" << std::endl;
-            std::cout << "Get serial " << std::endl;
-            std::cout << "name: " << ret << std::endl;
-            std::cout << "max size: " << max_size << std::endl;
-            std::cout << "--------" << std::endl;
-            */
 
             if (this->error != ESP_OK) 
             {
@@ -152,6 +156,7 @@ char* Nvs::getSerialNumber()
             }
             else
             {
+
                 this->value_serial = (char*)malloc(strlen(ret) * sizeof(char));
                 strcpy(this->value_serial, ret);
 
@@ -199,12 +204,6 @@ void Nvs::setDeviceName(char* name)
                     strcpy(this->value_device, name);
                 }
             }
-            /*
-            std::cout << "--------" << std::endl;
-            std::cout << "Set device" << std::endl;
-            std::cout << "name: " << name << std::endl;
-            std::cout << "--------" << std::endl;
-            */
         }
     }
 }
@@ -244,12 +243,6 @@ void Nvs::setSerialNumber(char* number)
                     strcpy(this->value_serial, number);
                 }
             }
-            /*
-            std::cout << "--------" << std::endl;
-            std::cout << "Set serial" << std::endl;
-            std::cout << "number: " << number << std::endl;
-            std::cout << "--------" << std::endl;
-            */
         }
     }
 }

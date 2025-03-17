@@ -13,8 +13,10 @@
 #define MOTOR_PWM 4
 #define MOTOR_ROTATION 5
 
-#define LIGHT_SENSOR_RIGHT 6
-#define LIGHT_SENSOR_LEFT 7
+#define LIGHT_SENSOR_RIGHT ADC_CHANNEL_0
+#define LIGHT_SENSOR_LEFT ADC_CHANNEL_1
+
+#define LIGHT_THRESHOLD 5
 
 void stop_going_right()
 {
@@ -49,7 +51,12 @@ extern "C"
         btn_left->setOnPressed(stop_going_left);
 
         LightSensor* light_right = new LightSensor;
+        light_right->init(LIGHT_SENSOR_RIGHT);
+
         LightSensor* light_left = new LightSensor;
+        light_left->init(LIGHT_SENSOR_LEFT);
+
+        int light_difference = 0;
 
 
         while(1)
@@ -58,6 +65,39 @@ extern "C"
 
             btn_right->update();
             btn_left->update();
+
+            light_right->update();
+            light_left->update();
+
+            if(light_left->getValue() > light_right->getValue()) //if left is larger than right
+            {
+                light_difference = light_left->getValue() - light_right->getValue();
+
+                if (light_difference > LIGHT_THRESHOLD) 
+                {
+                    //activates rotation to the left
+                    if (!btn_right->getPressed()) //as long as the button isn't pressed 
+                    {
+                        
+                    }
+                }
+
+            }
+            else if(light_right->getValue() > light_left->getValue()) //if right is larger than left
+            {
+                light_difference = light_right->getValue() - light_left->getValue();
+
+                if (light_difference > LIGHT_THRESHOLD) 
+                {
+                    //activates rotation to the right
+                    if (!btn_right->getPressed()) //as long as the button isn't pressed 
+                    {
+
+                    }
+
+                }
+
+            }
             vTaskDelay(10);
         }
 
