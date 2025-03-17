@@ -22,15 +22,6 @@ char* Nvs::getNameSpace()
     return this->namespace_NVS;
 }
 //^^^ may not be usefull
-char* Nvs::getDeviceValue()
-{
-    return this->value_device;
-}
-char* Nvs::getSerialValue()
-{
-    return this->value_serial;
-}
-//^^^
 
 bool Nvs::init(char* nameSpace, char* device, char* serial) 
 {
@@ -56,8 +47,8 @@ bool Nvs::init(char* nameSpace, char* device, char* serial)
         this->key_device = device;
         this->key_serial = serial;
 
-        setDeviceName(getDeviceName());
-        setSerialNumber(getSerialNumber());
+        setDeviceName(getDeviceNVS());
+        setSerialNumber(getSerialNVS());
 
         return true;
     }
@@ -70,13 +61,13 @@ bool Nvs::init(char* nameSpace, char* device, char* serial)
     }
 }
 
-char* Nvs::getDeviceName()
+char* Nvs::getDeviceNVS()
 {
     this->error = nvs_open(this->namespace_NVS, NVS_READWRITE, &this->handle_NVS);
 
     if(this->error == ESP_ERR_NVS_NOT_FOUND) 
     {
-        printf("nvs not found\n");
+        ESP_LOGW(TAGW, "nvs not found");
     }
 
     if (this->error != ESP_OK) 
@@ -101,9 +92,13 @@ char* Nvs::getDeviceName()
                 this->error = nvs_get_str(this->handle_NVS, this->key_device, NULL, &max_size);
             }
 
-            char* ret = (char*)malloc(max_size * sizeof(char));
+            if (this->device_ret != NULL)
+            {
+                free(this->device_ret);
+            }
+            this->device_ret = (char*)malloc(max_size * sizeof(char));
 
-            this->error = nvs_get_str(this->handle_NVS, this->key_device, ret, &max_size);
+            this->error = nvs_get_str(this->handle_NVS, this->key_device, this->device_ret, &max_size);
 
             if (this->error != ESP_OK) 
             {
@@ -111,20 +106,21 @@ char* Nvs::getDeviceName()
             }
             else 
             {
-                this->value_device = (char*)malloc(strlen(ret) * sizeof(char));
-                strcpy(this->value_device, ret);
-
-                free(ret);
+                return this->device_ret;
             }
         }
     }
 
-    return this->value_device;
+    return " ";
 }
-char* Nvs::getSerialNumber() 
+char* Nvs::getSerialNVS() 
 {
     this->error = nvs_open(this->namespace_NVS, NVS_READWRITE, &this->handle_NVS);
 
+    if(this->error == ESP_ERR_NVS_NOT_FOUND) 
+    {
+        ESP_LOGW(TAGW, "nvs not found");
+    }
     if (this->error != ESP_OK) 
     {
         ESP_LOGE(TAGE, "Failed to open in get serial number");
@@ -146,9 +142,15 @@ char* Nvs::getSerialNumber()
                 setSerialNumber(" ");
                 this->error = nvs_get_str(this->handle_NVS, this->key_serial, NULL, &max_size);
             }
-            char* ret = (char*)malloc(max_size * sizeof(char));
 
-            this->error = nvs_get_str(this->handle_NVS, this->key_serial, ret, &max_size);
+            if (this->serial_ret != NULL)
+            {
+                free(this->serial_ret);
+            }
+
+            this->serial_ret = (char*)malloc(max_size * sizeof(char));
+
+            this->error = nvs_get_str(this->handle_NVS, this->key_serial, this->serial_ret, &max_size);
 
             if (this->error != ESP_OK) 
             {
@@ -156,15 +158,21 @@ char* Nvs::getSerialNumber()
             }
             else
             {
-
-                this->value_serial = (char*)malloc(strlen(ret) * sizeof(char));
-                strcpy(this->value_serial, ret);
-
-                free(ret);
+                return this->serial_ret;
             }
         }
     }
 
+    return " ";
+}
+
+char* Nvs::getDeviceName()
+{
+    return this->value_device;
+}
+
+char* Nvs::getSerialNumber()
+{
     return this->value_serial;
 }
 
@@ -200,7 +208,11 @@ void Nvs::setDeviceName(char* name)
                 }
                 else
                 {
-                    this->value_device = (char*)malloc(strlen(name) * sizeof(char));
+                    if (this->value_device != NULL)
+                    {
+                        free(this->value_device);
+                    }
+                    this->value_device = (char*)malloc(strlen(name) * sizeof(char)); //getDeviceName()
                     strcpy(this->value_device, name);
                 }
             }
@@ -239,10 +251,21 @@ void Nvs::setSerialNumber(char* number)
                 }
                 else
                 {
-                    this->value_serial = (char*)malloc(strlen(number) * sizeof(char));
+                    if (this->value_serial != NULL)
+                    {
+                        free(this->value_serial);
+                    }
+                    this->value_serial = (char*)malloc(strlen(number) * sizeof(char)); //getSerialNumber()
                     strcpy(this->value_serial, number);
                 }
             }
         }
     }
 }
+
+/* Used in getting data from nvs
+                this->value_device = (char*)malloc(strlen(ret) * sizeof(char));
+                strcpy(this->value_device, ret);
+
+                free(ret);
+*/
