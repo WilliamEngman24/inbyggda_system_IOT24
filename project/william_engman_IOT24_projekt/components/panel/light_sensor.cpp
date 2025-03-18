@@ -25,7 +25,7 @@ void LightSensor::init(adc_channel_t adc)
 
 void LightSensor::update()
 {
-    int value = getValue();
+    int value = processedInfo();
 
     if(value != -1) //if enough values have been collected 
     {
@@ -34,7 +34,7 @@ void LightSensor::update()
     }
 }
 
-int LightSensor::getValue()
+int LightSensor::processedInfo()
 {
     int sum = 0;
     int value;
@@ -49,9 +49,16 @@ int LightSensor::getValue()
         }
         value = (sum / this->values.size()); //procure median
 
+        this->value = value;
+
         this->values.clear();
 
         return value;
     }
     return -1;
+}
+
+int LightSensor::getValue()
+{
+    return this->value;
 }

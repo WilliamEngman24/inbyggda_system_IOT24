@@ -18,18 +18,20 @@ class LightSensor
     adc_channel_t adc;
     adc_oneshot_unit_handle_t handle;
 
-    int value;
+    int value = 0;
     
     //filter
     std::list<int> values;
     int counter;
 
     public:
+    int getValue();
+    
     void init(adc_channel_t adc);
 
     void update();
 
-    int getValue();
+    int processedInfo();
 };
 
 #endif 

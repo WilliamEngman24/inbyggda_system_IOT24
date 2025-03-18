@@ -16,8 +16,6 @@
 #define LIGHT_SENSOR_RIGHT ADC_CHANNEL_0
 #define LIGHT_SENSOR_LEFT ADC_CHANNEL_1
 
-#define LIGHT_THRESHOLD 5
-
 void stop_going_right()
 {
     //motor cannot go right
@@ -34,6 +32,7 @@ void light_sleep_mode()
     //else
         //turn sleep on (wake up 10 sec interval)
 }
+
 
 extern "C"
 {
