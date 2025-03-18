@@ -9,6 +9,8 @@
 #include "hal/adc_types.h"
 #include "esp_adc/adc_oneshot.h"
 
+#include "motor.h"
+
 #define FILTER 10
 
 class LightSensor

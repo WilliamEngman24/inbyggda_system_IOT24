@@ -1,8 +1,9 @@
 #include "motor.h"
 
 #define LIGHT_THRESHOLD 5
+#define DUTY 5000
 
-void Motor::init(int pin) 
+void Motor::init(int transistor, int h_bridge) 
 {
     ledc_timer_config_t motor_timer =
     {
@@ -16,7 +17,7 @@ void Motor::init(int pin)
     
     ledc_channel_config_t motor_channel = 
     {
-        .gpio_num = pin,
+        .gpio_num = transistor,
         .speed_mode = LEDC_LOW_SPEED_MODE,
         .channel = LEDC_CHANNEL_0,
         .intr_type = LEDC_INTR_DISABLE,
@@ -25,10 +26,25 @@ void Motor::init(int pin)
         .hpoint = 0
     };
     ledc_channel_config(&motor_channel);
+
+    gpio_config_t rotation = 
+    {
+        .pin_bit_mask = (1ULL << h_bridge),
+        .mode = GPIO_MODE_OUTPUT,                  //button value is write, output
+        .pull_up_en = (gpio_pullup_t)0,           
+        .pull_down_en = (gpio_pulldown_t)0,
+        .intr_type = GPIO_INTR_DISABLE,           //interupt is disabled
+    };
+    gpio_config(&rotation);
+
+    this->pin =h_bridge;
 }
 
-void Motor::update(int light_left, int light_right)
+void Motor::update(int light_left, int light_right, int btn_left, int btn_right)
 {
+    this->on = true;
+    rotation(1);
+    /*
     int light_difference;
     if(light_left > light_right) //if left is larger than right
     {
@@ -37,12 +53,16 @@ void Motor::update(int light_left, int light_right)
         if (light_difference > LIGHT_THRESHOLD) 
         {
             //activates rotation to the left
-            if () //as long as the button isn't pressed 
+            if (!btn_left) //as long as the button isn't pressed 
             {
-                
+                this->on = true;
+                rotation(1);
             }
         }
-
+        else 
+        {
+            this->on = false;
+        }
     }
     else if(light_right > light_left) //if right is larger than left
     {
@@ -51,15 +71,27 @@ void Motor::update(int light_left, int light_right)
         if (light_difference > LIGHT_THRESHOLD) 
         {
             //activates rotation to the right
-            if () //as long as the button isn't pressed 
+            if (!btn_right) //as long as the button isn't pressed 
             {
-
+                this->on = true;
+                rotation(0);
             }
         }
+        else
+        {
+            this->on = false;
+        }
     }
+    */
 }
 
-void Motor::rotation()
+void Motor::rotation(int mode)
 {
-    
+    gpio_set_level((gpio_num_t)this->pin, mode);
+
+    if (this->on) 
+    {
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, DUTY); //sets constant duty
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    }
 }

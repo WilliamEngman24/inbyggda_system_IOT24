@@ -11,9 +11,13 @@
 class Motor 
 {
     private:
+    bool on = false;
+    int pin;
+
     public:
-    void init(int pin);
-    void update(int left_light, int right_light);
+    void init(int transistor, int h_bridge);
+    void update(int light_left, int light_right, int btn_left, int btn_right);
+    void rotation(int mode);
 };
 
 #endif
